@@ -1,0 +1,2 @@
+imports:
+    - { resource: "@NecryinCCBundle/Resources/config/services.yml" }

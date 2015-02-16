@@ -1,0 +1,4 @@
+necryin_api_converter:
+    resource: @NecryinCCBundle/Controller/
+    type:     annotation
+    defaults: {_format: json}

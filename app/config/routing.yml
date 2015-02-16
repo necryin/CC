@@ -1,0 +1,2 @@
+app:
+    resource: "@NecryinCCBundle/Resources/config/routing.yml"
