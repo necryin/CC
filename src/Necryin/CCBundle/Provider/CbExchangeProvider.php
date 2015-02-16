@@ -24,7 +24,7 @@ class CbExchangeProvider implements ExchangeProviderInterface
     private $base = 'RUB';
     private $source = "http://www.cbr.ru/scripts/XML_daily.asp?date_req={DATE}";
     private $client;
-    private $serializer;
+
     /**
      * @var CurrencyManager
      */
@@ -35,10 +35,9 @@ class CbExchangeProvider implements ExchangeProviderInterface
         return 'cb';
     }
 
-    public function __construct(Client $client, Serializer $serializer, $currencyManager)
+    public function __construct(Client $client, $currencyManager)
     {
         $this->client = $client;
-        $this->serializer = $serializer;
         $this->currencyManager = $currencyManager;
     }
 

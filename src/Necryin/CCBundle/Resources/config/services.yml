@@ -6,7 +6,7 @@ services:
 
     necryin_cc.cb_exchange_provider:
         class: Necryin\CCBundle\Provider\CbExchangeProvider
-        arguments: [@guzzle.client, @jms_serializer, @necryin_cc.currency_manager]
+        arguments: [@guzzle.client, @necryin_cc.currency_manager]
         tags:
             - { name: necryin.exchange_provider, alias: cb }
 
@@ -21,3 +21,7 @@ services:
         arguments: [@guzzle.client, @necryin_cc.currency_manager, '%openexchange.app_id%']
         tags:
             - { name: necryin.exchange_provider, alias: openexchange }
+
+    necryin.calculate_currency_service:
+        class: Necryin\CCBundle\Service\CalculateCurrencyService
+        arguments: [@necryin.exchange_provider_factory]

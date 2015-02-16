@@ -16,17 +16,6 @@ class Currency
 {
 
     /**
-     * ISO 4217 date="2015-01-01"
-     *
-     * @ORM\Id
-     * @ORM\Column(type="smallint", options={"unsigned": true})
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     */
-    protected $id;
-
-//    protected $countryId;
-
-    /**
      * @ORM\Column(name="name", type="string", length=255,
      * nullable=false,  options={"comment": "Название валюты"})
      */
@@ -47,22 +36,6 @@ class Currency
     protected $scale;
 
     protected $value;
-
-    /**
-     * @return mixed
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * @param mixed $id
-     */
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
 
     /**
      * @return mixed

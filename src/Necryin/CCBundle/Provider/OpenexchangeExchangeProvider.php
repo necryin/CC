@@ -39,6 +39,7 @@ class OpenexchangeExchangeProvider implements ExchangeProviderInterface
             //my service exception
             throw new HttpException(Response::HTTP_BAD_GATEWAY);
         }
+
         $result['date'] = (string) $response['timestamp'];
         $result['base'] = (string) $response['base'];
         $result['provider'] = $this->getAlias();
