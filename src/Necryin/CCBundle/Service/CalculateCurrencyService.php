@@ -42,7 +42,10 @@ class CalculateCurrencyService
             throw new HttpException(Response::HTTP_BAD_REQUEST);
         }
 
-        if(0 === preg_match('/[0-9]+(\.[0-9][0-9]?)?/', strval($q)))
+        $q = strval($q);
+        preg_match('/[0-9]+\.?[0-9]+/', $q, $check);
+
+        if(empty($check) || $q !== $check[0])
         {
             throw new HttpException(Response::HTTP_BAD_REQUEST);
         }
