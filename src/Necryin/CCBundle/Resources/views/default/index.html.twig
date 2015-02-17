@@ -2,6 +2,36 @@
 
 {% block body %}
 
-    <div>Hello World!</div>
+    {% verbatim %}
+    <div ng-app="cc" ng-controller="MainController as main" class="container-fluid">
+        Из
+        <select ng-model="from" id="from">
+            <option ng-repeat="rate in rates[currentProvider]">{{ rate.a_code }}</option>
+        </select>
+        в
+        <select ng-model="to" id="to">
+            <option ng-repeat="rate in rates[currentProvider]">{{ rate.a_code }}</option>
+        </select>
+
+        <div>Провайдеры курсов
+            <select ng-change="updateRates()" ng-model="currentProvider"
+                    ng-options="provider for provider in providers">
+            </select>
+        </div>
+        <input ng-model="amount" type="text" value="1"/>
+        <input type="button" value="calc" ng-click="calculate()"/>
+        Результат: <span ng-model="result">{{ result }}</span>
+    </div>
+    {% endverbatim %}
 
 {% endblock %}
+
+ {% block javascripts %}
+     {{ parent() }}
+     {% javascripts '@NecryinCCBundle/Resources/public/js/lib/*' %}
+     <script type="text/javascript" src="{{ asset_url }}"></script>
+     {% endjavascripts %}
+     {% javascripts '@NecryinCCBundle/Resources/public/js/app.js' %}
+     <script type="text/javascript" src="{{ asset_url }}"></script>
+     {% endjavascripts %}
+ {% endblock %}

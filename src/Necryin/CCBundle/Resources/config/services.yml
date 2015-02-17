@@ -1,27 +1,34 @@
+parameters:
+    exchange_provider.cb: cb
+    exchange_provider.openexchange: openexchange
+
 services:
+    kernel.listener.necryin_kernel_listener:
+        class: Necryin\CCBundle\EventListener\KernelListener
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception, method: onKernelException, priority: 255 }
+
     necryin_cc.currency_converter:
         class: Necryin\CCBundle\Request\ParamConverter\CurrencyConverter
         tags:
             - { name: request.param_converter, priority: 1, converter: currency_converter }
 
-    necryin_cc.cb_exchange_provider:
-        class: Necryin\CCBundle\Provider\CbExchangeProvider
-        arguments: [@guzzle.client, @necryin_cc.currency_manager]
-        tags:
-            - { name: necryin.exchange_provider, alias: cb }
-
-    necryin_cc.currency_manager:
-        class: Necryin\CCBundle\Model\CurrencyManager
-
     necryin.exchange_provider_factory:
         class: Necryin\CCBundle\Factory\ExchangeProviderFactory
+        arguments: [@service_container]
+
+    necryin_cc.cb_exchange_provider:
+        class: Necryin\CCBundle\Provider\CbExchangeProvider
+        arguments: [@guzzle.client, '%exchange_provider.cb%']
+        tags:
+            - { name: necryin.exchange_provider, alias: '%exchange_provider.cb%' }
 
     necryin.openexchange_exchange_provider:
         class: Necryin\CCBundle\Provider\OpenexchangeExchangeProvider
-        arguments: [@guzzle.client, @necryin_cc.currency_manager, '%openexchange.app_id%']
+        arguments: [@guzzle.client, '%exchange_provider.openexchange%', '%openexchange.app_id%']
         tags:
-            - { name: necryin.exchange_provider, alias: openexchange }
+            - { name: necryin.exchange_provider, alias: '%exchange_provider.openexchange%' }
 
-    necryin.calculate_currency_service:
-        class: Necryin\CCBundle\Service\CalculateCurrencyService
-        arguments: [@necryin.exchange_provider_factory]
+    necryin.currency_service:
+        class: Necryin\CCBundle\Service\CurrencyService
+        arguments: [@necryin.exchange_provider_factory, @?cache]

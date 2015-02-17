@@ -6,12 +6,30 @@
 
 namespace Necryin\CCBundle\Provider;
 
-
+/**
+ * Интерфейс провайдера курсов валют
+ * Interface ExchangeProviderInterface
+ */
 interface ExchangeProviderInterface
 {
-
+    /**
+     * Получить курсы валют
+     *
+     * @return array
+     */
     public function getRates();
 
-    public function getBase();
+    /**
+     * Частота обновления курсов на провайдере
+     *
+     * @return int
+     */
+    public function getTtl();
 
+    /**
+     * Псевдоним провайдера в нашей системе
+     *
+     * @return string
+     */
+    public function getAlias();
 }

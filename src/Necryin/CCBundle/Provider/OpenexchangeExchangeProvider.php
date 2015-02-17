@@ -6,54 +6,111 @@
 
 namespace Necryin\CCBundle\Provider;
 
-use Guzzle\Service\Client;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use Guzzle\Http\Exception\RequestException;
+use Guzzle\Service\ClientInterface;
+use Necryin\CCBundle\Object\Currency;
+use Necryin\CCBundle\Exception\ExchangeProviderException;
+use Guzzle\Common\Exception\RuntimeException;
 
+/**
+ * Предоставляет информацию о курсе валют по данным https://openexchangerates.org/
+ * Class OpenexchangeExchangeProvider
+ */
 class OpenexchangeExchangeProvider implements ExchangeProviderInterface
 {
 
-    private $source = "https://openexchangerates.org/api/latest.json?app_id={APP_ID}";
-    private $updatePeriod = "10m";
     private $client;
-    private $currencyManager;
+    private $alias;
 
-    public function __construct(Client $client, $currencyManager, $appId)
+    /**
+     * Url api провайдера
+     *
+     * @var string
+     */
+    private $source = "https://openexchangerates.org/api/latest.json?app_id=";
+
+    /**
+     * Время обновления курсов
+     *
+     * @var int
+     */
+    private $ttl = 3600;
+
+    /**
+     * Обязательные поля валидного json провайдера
+     *
+     * @var array
+     */
+    private $required = ['timestamp', 'base', 'rates'];
+
+    /**
+     * @param ClientInterface $client
+     * @param string          $alias
+     * @param string          $appId
+     */
+    public function __construct(ClientInterface $client, $alias, $appId)
     {
         $this->client = $client;
-        $this->currencyManager = $currencyManager;
+        $this->alias = $alias;
         $this->appId = $appId;
     }
 
+    /** {@inheritdoc} */
     public function getAlias()
     {
-        return 'openexchange';
+        return $this->alias;
     }
 
+    /** {@inheritdoc} */
+    public function getTtl()
+    {
+        return $this->ttl;
+    }
+
+    /** {@inheritdoc} */
     public function getRates()
     {
-        $url = str_replace('{APP_ID}', $this->appId, $this->source);
-        $response = $this->client->get($url)->send()->json();;
-
-        if (null === $response) {
-            //my service exception
-            throw new HttpException(Response::HTTP_BAD_GATEWAY);
+        $url = $this->source . $this->appId;
+        try
+        {
+            $response = $this->client->get($url)->send();
+            $parsedResponse = $response->json();
+        }
+        catch(RequestException $reqe)
+        {
+            throw new ExchangeProviderException();
+        }
+        catch(RuntimeException $rune)
+        {
+            throw new ExchangeProviderException();
         }
 
-        $result['date'] = (string) $response['timestamp'];
-        $result['base'] = (string) $response['base'];
-        $result['provider'] = $this->getAlias();
-        foreach($response['rates'] as $key => $value)
+        foreach($this->required as $require)
         {
-            $result['rates'][$key] = $this->currencyManager->createCurrency($key, 1/$value);
+            if(empty($parsedResponse[$require]))
+            {
+                throw new ExchangeProviderException();
+            }
+        }
+
+        $result['provider'] = $this->alias;
+        $result['date'] = (string) $parsedResponse['timestamp'];
+        $result['base'] = (string) $parsedResponse['base'];
+
+        foreach($parsedResponse['rates'] as $key => $value)
+        {
+            if(is_numeric($value) && 0 < $value)
+            {
+                $value = 1 / $value;
+                $result['rates'][$key] = new Currency($key, $value, 1);
+            }
+            else
+            {
+                // log warning
+            }
         }
 
         return $result;
-    }
-
-    public function getBase()
-    {
-        return 'USD';
     }
 
 }

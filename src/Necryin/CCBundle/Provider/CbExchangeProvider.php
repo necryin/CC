@@ -6,78 +6,120 @@
 
 namespace Necryin\CCBundle\Provider;
 
-use Guzzle\Service\Client;
-use JMS\Serializer\Serializer;
-use Necryin\CCBundle\Model\CurrencyManager;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use Guzzle\Service\ClientInterface;
+use Necryin\CCBundle\Object\Currency;
+use Guzzle\Http\Exception\RequestException;
+use Necryin\CCBundle\Exception\ExchangeProviderException;
+use Guzzle\Common\Exception\RuntimeException;
 
 /**
- *  Предоставляет информацию о курсе валют
- *
- * Class CbExchangeProvider
- *
- * @package Necryin\CCBundle\Provider
+ *  Предоставляет информацию о курсе валют по данным центробанка РФ
+ *  Class CbExchangeProvider
  */
 class CbExchangeProvider implements ExchangeProviderInterface
 {
-    private $base = 'RUB';
-    private $source = "http://www.cbr.ru/scripts/XML_daily.asp?date_req={DATE}";
+
     private $client;
+    private $alias;
 
     /**
-     * @var CurrencyManager
+     * Валюта через которую идет конвертация
+     *
+     * @var string
      */
-    private $currencyManager;
+    private $base = 'RUB';
 
-    public function getAlias()
-    {
-        return 'cb';
-    }
+    /**
+     * Url api провайдера
+     *
+     * @var string
+     */
+    private $source = "http://www.cbr.ru/scripts/XML_daily.asp";
 
-    public function __construct(Client $client, $currencyManager)
+    /**
+     * Время обновления курсов
+     *
+     * @var int
+     */
+    private $ttl = 0;
+
+    /**
+     * @param ClientInterface $client
+     * @param string          $alias
+     */
+    public function __construct(ClientInterface $client, $alias)
     {
         $this->client = $client;
-        $this->currencyManager = $currencyManager;
+        $this->alias = $alias;
     }
 
+    /** {@inheritdoc} */
+    public function getAlias()
+    {
+        return $this->alias;
+    }
+
+    /** {@inheritdoc} */
+    public function getTtl()
+    {
+        return $this->ttl;
+    }
+
+    /** {@inheritdoc} */
     public function getRates()
     {
-        $date = new \DateTime();
-        $date = $date->format('d.m.Y');
-        $url = str_replace('{DATE}', $date, $this->source);
-        $response = $this->client->get($url)->send()->xml();;
-
-        if (null === $response) {
-            //my service exception
-            throw new HttpException(Response::HTTP_BAD_GATEWAY);
+        $url = $this->source;
+        try
+        {
+            $response = $this->client->get($url)->send();
+            $parsedResponse = $response->xml();
         }
-        $rateDate = (string) $response->attributes()->Date;
+        catch(RequestException $reqe)
+        {
+            throw new ExchangeProviderException();
+        }
+        catch(RuntimeException $rune)
+        {
+            throw new ExchangeProviderException();
+        }
 
-        $result['provider'] = $this->getAlias();
-        $result['date'] = $rateDate;
-        $result['base'] = 'RUB';
-        $currencies[$result['base']] = $this->currencyManager->createCurrency($result['base'], 1, $ncode='', 1);
-        foreach($response->Valute as $val){
-            $ncode = (string) $val->NumCode;
-            $acode = (string) $val->CharCode;
-            $scale = (int)    $val->Nominal;
-            $name  = (string) $val->Name;
-            $value = (string) $val->Value;
-            $value = floatval(str_replace(',', '.', $value));
-            $currencies[$acode] = $this->currencyManager->createCurrency($acode, $value, $ncode, $scale, $name);
+        $result['provider'] = $this->alias;
+        $result['base'] = $this->base;
+        if(empty($parsedResponse->attributes()->Date) || empty($parsedResponse->Valute))
+        {
+            throw new ExchangeProviderException();
+        }
+
+        /** Конвертим дату в timestamp */
+        $date = (string) $parsedResponse->attributes()->Date;
+        $result['date'] = (new \DateTime($date))->format('U');
+
+        /** добавляем базовую валюту в курсы */
+        $currencies[$result['base']] = new Currency($result['base'], 1, 1);
+
+        /**
+         * Разбираем xml и вносим данные в класс валюты Currency
+         */
+        foreach($parsedResponse->Valute as $val)
+        {
+            if(!empty($val->CharCode) && !empty($val->Nominal) && !empty($val->Value))
+            {
+                $acode = (string) $val->CharCode;
+                $scale = (int) $val->Nominal;
+                $value = (string) $val->Value;
+                $value = floatval(str_replace(',', '.', $value));
+                $ncode = (string) $val->NumCode;
+                $name = (string) $val->Name;
+                $currencies[$acode] = new Currency($acode, $value, $scale, $name, $ncode);
+            }
+            else
+            {
+                // log warning
+            }
         }
         $result['rates'] = $currencies;
+
         return $result;
     }
 
-    public function getBase()
-    {
-        return $this->base;
-    }
-
-    public function setBase($base)
-    {
-        $this->base = $base;
-    }
 }

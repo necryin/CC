@@ -10,19 +10,28 @@ use Sensio\Bundle\FrameworkExtraBundle\Request\ParamConverter\ParamConverterInte
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Конвертер параметров для калькулятора валют
+ * Class CurrencyConverter
+ */
 class CurrencyConverter implements ParamConverterInterface
 {
 
+    /**
+     * Пробрасываем параметры в контроллер
+     * @param Request        $request
+     * @param ParamConverter $configuration
+     */
     public function apply(Request $request, ParamConverter $configuration)
     {
         $from = $request->query->get('from');
         $to = $request->query->get('to');
-        $q = $request->query->get('q');
+        $amount = $request->query->get('amount');
         $provider = $request->query->get('provider');
 
         $request->attributes->set('from', $from);
         $request->attributes->set('to', $to);
-        $request->attributes->set('q', $q);
+        $request->attributes->set('amount', $amount);
         $request->attributes->set('provider', $provider);
     }
 

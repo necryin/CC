@@ -6,32 +6,52 @@
 
 namespace Necryin\CCBundle\Factory;
 
-use Necryin\CCBundle\Provider\ExchangeProviderInterface;
+use Necryin\CCBundle\Exception\ExchangeProviderFactoryException;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * Фабрика курсов валют
+ * Class ExchangeProviderFactory
+ */
 class ExchangeProviderFactory
 {
-    private $providers;
+    /**
+     * Провайдеры
+     *
+     * @var array
+     */
+    private $providers = [];
 
-    public function __construct()
+    /**
+     * @param ContainerInterface $container
+     */
+    public function __construct(ContainerInterface $container)
     {
-        $this->providers = [];
+        $this->container = $container;
     }
 
-    public function addProvider(ExchangeProviderInterface $provider, $alias)
+    public function addProvider($providerServiceId, $alias)
     {
-        $this->providers[$alias] = $provider;
+        $this->providers[$alias] = $providerServiceId;
+    }
+
+    public function getProviders()
+    {
+        return $this->providers;
     }
 
     public function getProvider($alias)
     {
-        if (empty($this->providers))
+        if(empty($this->providers))
         {
-            throw new \Exception('There are no exchange providers');
+            throw new ExchangeProviderFactoryException('There are no exchange providers');
         }
-        if (array_key_exists($alias, $this->providers))
+        if(array_key_exists($alias, $this->providers) &&
+           $this->container->has($this->providers[$alias])
+        )
         {
-            return $this->providers[$alias];
+            return $this->container->get($this->providers[$alias]);
         }
-        return array_values($this->providers)[0];
+        throw new ExchangeProviderFactoryException('Invalid provider name: ' . $alias);
     }
 }
