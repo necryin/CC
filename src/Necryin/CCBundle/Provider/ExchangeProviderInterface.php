@@ -26,10 +26,4 @@ interface ExchangeProviderInterface
      */
     public function getTtl();
 
-    /**
-     * Псевдоним провайдера в нашей системе
-     *
-     * @return string
-     */
-    public function getAlias();
 }

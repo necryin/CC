@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * Фабрика курсов валют
  * Class ExchangeProviderFactory
  */
-class ExchangeProviderFactory
+class ExchangeProviderManager
 {
     /**
      * Провайдеры
@@ -30,16 +30,29 @@ class ExchangeProviderFactory
         $this->container = $container;
     }
 
+    /**
+     * @param string $providerServiceId
+     * @param string $alias
+     */
     public function addProvider($providerServiceId, $alias)
     {
         $this->providers[$alias] = $providerServiceId;
     }
 
+    /**
+     * @return array
+     */
     public function getProviders()
     {
         return $this->providers;
     }
 
+    /**
+     * Получить провайдера курсов валют по его алиасу
+     * @param $alias
+     * @return ExchangeProviderInterface
+     * @throws ExchangeProviderFactoryException
+     */
     public function getProvider($alias)
     {
         if(empty($this->providers))

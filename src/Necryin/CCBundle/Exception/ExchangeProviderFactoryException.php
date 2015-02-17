@@ -12,8 +12,5 @@ namespace Necryin\CCBundle\Exception;
  */
 class ExchangeProviderFactoryException extends \Exception
 {
-    public function __construct($msg = '')
-    {
-        parent::__construct($msg);
-    }
+
 }

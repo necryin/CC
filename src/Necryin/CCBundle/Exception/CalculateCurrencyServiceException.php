@@ -12,8 +12,5 @@ namespace Necryin\CCBundle\Exception;
  */
 class CalculateCurrencyServiceException extends \Exception
 {
-    public function __construct($msg = '')
-    {
-        parent::__construct($msg);
-    }
+
 }

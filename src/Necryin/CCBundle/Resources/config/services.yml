@@ -13,8 +13,8 @@ services:
         tags:
             - { name: request.param_converter, priority: 1, converter: currency_converter }
 
-    necryin.exchange_provider_factory:
-        class: Necryin\CCBundle\Factory\ExchangeProviderFactory
+    necryin.exchange_provider_manager:
+        class: Necryin\CCBundle\Manager\ExchangeProviderManager
         arguments: [@service_container]
 
     necryin_cc.cb_exchange_provider:
@@ -31,4 +31,4 @@ services:
 
     necryin.currency_service:
         class: Necryin\CCBundle\Service\CurrencyService
-        arguments: [@necryin.exchange_provider_factory, @?cache]
+        arguments: [@necryin.exchange_provider_manager, @?cache]

@@ -7,8 +7,16 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
+/**
+ * Слушатель событий ядра
+ * Class KernelListener
+ */
 class KernelListener
 {
+    /**
+     * Перехватывает события исключений
+     * @param GetResponseForExceptionEvent $event
+     */
     public function onKernelException(GetResponseForExceptionEvent $event)
     {
         $exception = $event->getException();

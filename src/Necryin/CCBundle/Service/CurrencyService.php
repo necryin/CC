@@ -9,8 +9,8 @@ namespace Necryin\CCBundle\Service;
 use Doctrine\Common\Cache\Cache;
 use Necryin\CCBundle\Exception\CalculateCurrencyServiceException;
 use Necryin\CCBundle\Exception\ExchangeProviderFactoryException;
-use Necryin\CCBundle\Factory\ExchangeProviderFactory;
-use Necryin\CCBundle\Object\Currency;
+use Necryin\CCBundle\Manager\ExchangeProviderManager;
+use Necryin\CCBundle\Object\Rate;
 use Necryin\CCBundle\Provider\ExchangeProviderInterface;
 
 /**
@@ -22,9 +22,9 @@ class CurrencyService
 {
 
     /**
-     * @var ExchangeProviderFactory
+     * @var ExchangeProviderManager
      */
-    private $exchangeProviderFactory;
+    private $exchangeProviderManager;
 
     /**
      * @var Cache
@@ -33,9 +33,9 @@ class CurrencyService
 
     private $cachePrefix = "necryin:cc:exchange_provider:";
 
-    public function __construct(ExchangeProviderFactory $exchangeProviderFactory, Cache $cache = null)
+    public function __construct(ExchangeProviderManager $exchangeProviderManager, Cache $cache = null)
     {
-        $this->exchangeProviderFactory = $exchangeProviderFactory;
+        $this->exchangeProviderManager = $exchangeProviderManager;
         $this->cache = $cache;
     }
 
@@ -43,50 +43,47 @@ class CurrencyService
      * @param string $from   Из какой валюты конвертим
      * @param string $to     В какую валюту конвертим
      * @param float  $amount Сумма изначальной валюты
-     * @param array  $rates  Массив курсов валют
+     * @param string $providerAlias Псевдоним провайдера курсов валют
      *
      * @return float|int
      *
      * @throws CalculateCurrencyServiceException
      */
-    public function calculate($from, $to, $amount, $rates)
+    public function calculate($from, $to, $amount, $providerAlias)
     {
+        $rates = $this->getRates($providerAlias);
         if(isset($rates['rates'][$from]))
         {
-            /** @var Currency $fromCurrency */
-            $fromCurrency = $rates['rates'][$from];
+            /** @var Rate $fromRate */
+            $fromRate = $rates['rates'][$from];
         }
         else
         {
-            throw new CalculateCurrencyServiceException('Provider doesn\'t provide ' . $from . ' currency');
+            throw new CalculateCurrencyServiceException('Provider doesn\'t provide ' . $from . ' rate');
         }
 
         if(isset($rates['rates'][$to]))
         {
-            /** @var Currency $toCurrency */
-            $toCurrency = $rates['rates'][$to];
+            /** @var Rate $toRate */
+            $toRate = $rates['rates'][$to];
         }
         else
         {
-            throw new CalculateCurrencyServiceException('Provider doesn\'t provide ' . $to . ' currency');
+            throw new CalculateCurrencyServiceException('Provider doesn\'t provide ' . $to . ' rate');
         }
 
         if(!is_numeric($amount))
         {
-            throw new CalculateCurrencyServiceException('Invalid amount');
+            throw new CalculateCurrencyServiceException('Invalid amount: ' . $amount);
         }
         $amount = floatval($amount);
 
-        if(0 === $fromCurrency->getScale())
+        if(0 === $fromRate->getScale())
         {
             return 0;
         }
 
-        /** конвертим from валюту в базовую */
-        $baseQ = $fromCurrency->getValue() / $fromCurrency->getScale();
-        /** курс конечной валюты с учетом номинала */
-        $baseT = $toCurrency->getValue() * $toCurrency->getScale();
-        $result = $baseQ / $baseT * $amount;
+        $result = $fromRate->getValue() / $toRate->getValue() * $amount;
 
         return ['from' => $from, 'to' => $to, 'amount' => $amount, 'value' => $result];
     }
@@ -94,34 +91,27 @@ class CurrencyService
     /**
      * Получить курсы валют по псевдониму провайдера
      *
-     * @param string $providerString
+     * @param string $providerAlias
      *
      * @return array
      * @throws CalculateCurrencyServiceException
      */
-    public function getRates($providerString)
+    public function getRates($providerAlias)
     {
         try
         {
             /** @var ExchangeProviderInterface $provider */
-            $provider = $this->exchangeProviderFactory->getProvider($providerString);
+            $provider = $this->exchangeProviderManager->getProvider($providerAlias);
         }
         catch(ExchangeProviderFactoryException $e)
         {
             throw new CalculateCurrencyServiceException($e->getMessage());
         }
-        if(null !== $this->cache)
-        {
-            $rates = $this->getCachedRates($providerString);
-            if(null === $rates)
-            {
-                $rates = $provider->getRates();
-                $this->cacheRates($providerString, $provider, $rates);
-            }
-        }
-        else
+
+        if(null === $rates = $this->getCachedRates($providerAlias))
         {
             $rates = $provider->getRates();
+            $this->cacheRates($providerAlias, $provider, $rates);
         }
 
         return $rates;
@@ -136,6 +126,10 @@ class CurrencyService
      */
     private function getCachedRates($providerString)
     {
+        if(null !== $this->cache)
+        {
+            return null;
+        }
         $cacheKey = $this->cachePrefix . $providerString;
         $cachedRates = $this->cache->fetch($cacheKey);
         if($cachedRates)
@@ -157,6 +151,10 @@ class CurrencyService
      */
     private function cacheRates($providerString, ExchangeProviderInterface $provider, array $rates)
     {
+        if(null !== $this->cache)
+        {
+            return false;
+        }
         $cacheKey = $this->cachePrefix . $providerString;
         if(isset($rates['date']))
         {

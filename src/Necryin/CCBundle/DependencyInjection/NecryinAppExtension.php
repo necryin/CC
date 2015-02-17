@@ -7,6 +7,9 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
+/**
+ * Class NecryinCCExtension
+ */
 class NecryinCCExtension extends Extension
 {
 
@@ -18,6 +21,10 @@ class NecryinCCExtension extends Extension
         return 'necryin_cc';
     }
 
+    /**
+     * @param array $configs
+     * @param ContainerBuilder $container
+     */
     public function load(array $configs, ContainerBuilder $container)
     {
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));

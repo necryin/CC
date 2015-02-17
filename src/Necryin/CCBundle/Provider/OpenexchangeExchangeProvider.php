@@ -8,7 +8,7 @@ namespace Necryin\CCBundle\Provider;
 
 use Guzzle\Http\Exception\RequestException;
 use Guzzle\Service\ClientInterface;
-use Necryin\CCBundle\Object\Currency;
+use Necryin\CCBundle\Object\Rate;
 use Necryin\CCBundle\Exception\ExchangeProviderException;
 use Guzzle\Common\Exception\RuntimeException;
 
@@ -56,12 +56,6 @@ class OpenexchangeExchangeProvider implements ExchangeProviderInterface
     }
 
     /** {@inheritdoc} */
-    public function getAlias()
-    {
-        return $this->alias;
-    }
-
-    /** {@inheritdoc} */
     public function getTtl()
     {
         return $this->ttl;
@@ -78,18 +72,18 @@ class OpenexchangeExchangeProvider implements ExchangeProviderInterface
         }
         catch(RequestException $reqe)
         {
-            throw new ExchangeProviderException();
+            throw new ExchangeProviderException('RequestException: ' . $reqe->getMessage());
         }
         catch(RuntimeException $rune)
         {
-            throw new ExchangeProviderException();
+            throw new ExchangeProviderException('RuntimeException: ' . $rune->getMessage());
         }
 
         foreach($this->required as $require)
         {
             if(empty($parsedResponse[$require]))
             {
-                throw new ExchangeProviderException();
+                throw new ExchangeProviderException('Invalid response params');
             }
         }
 
@@ -102,11 +96,7 @@ class OpenexchangeExchangeProvider implements ExchangeProviderInterface
             if(is_numeric($value) && 0 < $value)
             {
                 $value = 1 / $value;
-                $result['rates'][$key] = new Currency($key, $value, 1);
-            }
-            else
-            {
-                // log warning
+                $result['rates'][$key] = new Rate($key, $value);
             }
         }
 

@@ -35,6 +35,10 @@ class CurrencyConverter implements ParamConverterInterface
         $request->attributes->set('provider', $provider);
     }
 
+    /**
+     * @param ParamConverter $configuration
+     * @return bool
+     */
     public function supports(ParamConverter $configuration)
     {
         return (null === $configuration->getClass());
