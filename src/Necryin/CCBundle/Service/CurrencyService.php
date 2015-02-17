@@ -77,13 +77,16 @@ class CurrencyService
         }
         $amount = floatval($amount);
 
-        if(0 === $fromCurrency->getScale() || 0 === $toCurrency->getValue())
+        if(0 === $fromCurrency->getScale())
         {
             return 0;
         }
 
-        $baseQ = $fromCurrency->getValue() * $amount / $fromCurrency->getScale();
-        $result = $baseQ * $toCurrency->getScale() / $toCurrency->getValue();
+        /** конвертим from валюту в базовую */
+        $baseQ = $fromCurrency->getValue() / $fromCurrency->getScale();
+        /** курс конечной валюты с учетом номинала */
+        $baseT = $toCurrency->getValue() * $toCurrency->getScale();
+        $result = $baseQ / $baseT * $amount;
 
         return ['from' => $from, 'to' => $to, 'amount' => $amount, 'value' => $result];
     }
