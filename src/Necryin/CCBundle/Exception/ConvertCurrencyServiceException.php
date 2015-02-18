@@ -8,9 +8,9 @@ namespace Necryin\CCBundle\Exception;
 
 /**
  * Исключение калькулятора валют
- * Class CalculateCurrencyServiceException
+ * Class ConvertCurrencyServiceException
  */
-class CalculateCurrencyServiceException extends \Exception
+class ConvertCurrencyServiceException extends \Exception
 {
 
 }

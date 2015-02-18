@@ -7,11 +7,14 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
+ * Бандл конвертера валют
  * Class NecryinCCBundle
  */
 class NecryinCCBundle extends Bundle
 {
     /**
+     * Сборка DI контейнера
+     *
      * @param ContainerBuilder $container
      */
     public function build(ContainerBuilder $container)

@@ -19,16 +19,16 @@ services:
 
     necryin_cc.cb_exchange_provider:
         class: Necryin\CCBundle\Provider\CbExchangeProvider
-        arguments: [@guzzle.client, '%exchange_provider.cb%']
+        arguments: [@guzzle.client]
         tags:
             - { name: necryin.exchange_provider, alias: '%exchange_provider.cb%' }
 
     necryin.openexchange_exchange_provider:
         class: Necryin\CCBundle\Provider\OpenexchangeExchangeProvider
-        arguments: [@guzzle.client, '%exchange_provider.openexchange%', '%openexchange.app_id%']
+        arguments: [@guzzle.client, '%openexchange.app_id%']
         tags:
             - { name: necryin.exchange_provider, alias: '%exchange_provider.openexchange%' }
 
-    necryin.currency_service:
-        class: Necryin\CCBundle\Service\CurrencyService
+    necryin.currency_converter_service:
+        class: Necryin\CCBundle\Service\CurrencyConverterService
         arguments: [@necryin.exchange_provider_manager, @?cache]

@@ -3,7 +3,6 @@
  * User: human
  * Date: 13.02.15
  */
-
 namespace Necryin\CCBundle\Provider;
 
 use Guzzle\Service\ClientInterface;
@@ -19,8 +18,10 @@ use Guzzle\Common\Exception\RuntimeException;
 class CbExchangeProvider implements ExchangeProviderInterface
 {
 
+    /**
+     * @var ClientInterface
+     */
     private $client;
-    private $alias;
 
     /**
      * Валюта через которую идет конвертация
@@ -37,7 +38,7 @@ class CbExchangeProvider implements ExchangeProviderInterface
     private $source = "http://www.cbr.ru/scripts/XML_daily.asp";
 
     /**
-     * Время обновления курсов
+     * Период обновления курсов
      *
      * @var int
      */
@@ -45,12 +46,10 @@ class CbExchangeProvider implements ExchangeProviderInterface
 
     /**
      * @param ClientInterface $client
-     * @param string          $alias
      */
-    public function __construct(ClientInterface $client, $alias)
+    public function __construct(ClientInterface $client)
     {
         $this->client = $client;
-        $this->alias = $alias;
     }
 
     /** {@inheritdoc} */
@@ -68,6 +67,7 @@ class CbExchangeProvider implements ExchangeProviderInterface
             $response = $this->client->get($url)->send();
             $parsedResponse = $response->xml();
         }
+            // @codeCoverageIgnoreStart
         catch(RequestException $reqe)
         {
             throw new ExchangeProviderException('RequestException: ' . $reqe->getMessage());
@@ -76,37 +76,38 @@ class CbExchangeProvider implements ExchangeProviderInterface
         {
             throw new ExchangeProviderException('RuntimeException: ' . $rune->getMessage());
         }
-
-        $result['provider'] = $this->alias;
-        $result['base'] = $this->base;
+        // @codeCoverageIgnoreEnd
         if(empty($parsedResponse->attributes()->Date) || empty($parsedResponse->Valute))
         {
             throw new ExchangeProviderException('Invalid response params');
         }
 
+        $result = [];
+        $result['base'] = $this->base;
+
         /** Конвертим дату в timestamp */
         $date = (string) $parsedResponse->attributes()->Date;
         $result['date'] = (new \DateTime($date))->format('U');
 
-        $rates = [];
         /** добавляем курс базовой валюты в курсы */
-        $rates[$result['base']] = new Rate($result['base'], 1);
+        $result['rates'][$result['base']] = new Rate($result['base'], 1);
 
         /**
          * Разбираем xml и вносим данные в класс курса валюты Rate
          */
         foreach($parsedResponse->Valute as $val)
         {
-            if(!empty($val->CharCode) &&  !empty($val->Value) && 0 < $val->Nominal)
+            if(!empty($val->CharCode) && !empty($val->Value) && 0 < $val->Nominal)
             {
                 $code = (string) $val->CharCode;
-                $scale = (int) $val->Nominal;
+                $nominal = (int) $val->Nominal;
                 $value = (string) $val->Value;
-                $rate = floatval(str_replace(',', '.', $value)) / $scale;
-                $rates[$code] = new Rate($code, $rate);
+                /** из цб приходит невалидное значение вида 12,123 -> исправим это!
+                 * и поделим на номинал курса */
+                $rate = floatval(str_replace(',', '.', $value)) / $nominal;
+                $result['rates'][$code] = new Rate($code, $rate);
             }
         }
-        $result['rates'] = $rates;
 
         return $result;
     }

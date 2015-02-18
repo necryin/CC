@@ -3,7 +3,6 @@
  * User: human
  * Date: 13.02.15
  */
-
 namespace Necryin\CCBundle\Provider;
 
 use Guzzle\Http\Exception\RequestException;
@@ -18,9 +17,10 @@ use Guzzle\Common\Exception\RuntimeException;
  */
 class OpenexchangeExchangeProvider implements ExchangeProviderInterface
 {
-
+    /**
+     * @var ClientInterface
+     */
     private $client;
-    private $alias;
 
     /**
      * Url api провайдера
@@ -30,28 +30,26 @@ class OpenexchangeExchangeProvider implements ExchangeProviderInterface
     private $source = "https://openexchangerates.org/api/latest.json?app_id=";
 
     /**
-     * Время обновления курсов
+     * Период обновления курсов
      *
      * @var int
      */
     private $ttl = 3600;
 
     /**
-     * Обязательные поля валидного json провайдера
+     * Обязательные поля валидного json для провайдера
      *
      * @var array
      */
     private $required = ['timestamp', 'base', 'rates'];
 
     /**
-     * @param ClientInterface $client
-     * @param string          $alias
-     * @param string          $appId
+     * @param ClientInterface $client Guzzle Client Interface
+     * @param string          $appId  ключ доступа к API
      */
-    public function __construct(ClientInterface $client, $alias, $appId)
+    public function __construct(ClientInterface $client, $appId)
     {
         $this->client = $client;
-        $this->alias = $alias;
         $this->appId = $appId;
     }
 
@@ -70,6 +68,7 @@ class OpenexchangeExchangeProvider implements ExchangeProviderInterface
             $response = $this->client->get($url)->send();
             $parsedResponse = $response->json();
         }
+            // @codeCoverageIgnoreStart
         catch(RequestException $reqe)
         {
             throw new ExchangeProviderException('RequestException: ' . $reqe->getMessage());
@@ -78,6 +77,7 @@ class OpenexchangeExchangeProvider implements ExchangeProviderInterface
         {
             throw new ExchangeProviderException('RuntimeException: ' . $rune->getMessage());
         }
+        // @codeCoverageIgnoreEnd
 
         foreach($this->required as $require)
         {
@@ -87,7 +87,7 @@ class OpenexchangeExchangeProvider implements ExchangeProviderInterface
             }
         }
 
-        $result['provider'] = $this->alias;
+        $result = [];
         $result['date'] = (string) $parsedResponse['timestamp'];
         $result['base'] = (string) $parsedResponse['base'];
 

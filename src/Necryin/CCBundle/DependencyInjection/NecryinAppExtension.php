@@ -1,5 +1,8 @@
 <?php
-
+/**
+ * User: human
+ * Date: 18.02.15
+ */
 namespace Necryin\CCBundle\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -22,7 +25,8 @@ class NecryinCCExtension extends Extension
     }
 
     /**
-     * @param array $configs
+     * Загружаем конфигурацию бандла
+     * @param array            $configs
      * @param ContainerBuilder $container
      */
     public function load(array $configs, ContainerBuilder $container)

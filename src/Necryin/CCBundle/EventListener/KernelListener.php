@@ -1,11 +1,13 @@
 <?php
-
+/**
+ * User: human
+ * Date: 18.02.15
+ */
 namespace Necryin\CCBundle\EventListener;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
  * Слушатель событий ядра
@@ -15,6 +17,7 @@ class KernelListener
 {
     /**
      * Перехватывает события исключений
+     *
      * @param GetResponseForExceptionEvent $event
      */
     public function onKernelException(GetResponseForExceptionEvent $event)
@@ -32,15 +35,7 @@ class KernelListener
     {
         $headers = [];
 
-        if($e instanceof HttpException)
-        {
-            $statusCode = $e->getStatusCode();
-            $headers = $e->getHeaders();
-        }
-        else
-        {
-            $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
-        }
+        $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
 
         $message = $e->getMessage();
 

@@ -1,5 +1,6 @@
 imports:
     - { resource: config_dev.yml }
+    - { resource: "@NecryinCCBundle/Resources/config/services_test.yml" }
 
 framework:
     test: ~
@@ -11,6 +12,3 @@ framework:
 web_profiler:
     toolbar: false
     intercept_redirects: false
-
-swiftmailer:
-    disable_delivery: true

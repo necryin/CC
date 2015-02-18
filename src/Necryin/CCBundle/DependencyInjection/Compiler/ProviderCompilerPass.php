@@ -1,9 +1,8 @@
 <?php
 /**
- * User: go
- * Date: 13.02.15
+ * User: human
+ * Date: 18.02.15
  */
-
 namespace Necryin\CCBundle\DependencyInjection\Compiler;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -16,7 +15,8 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 class ProviderCompilerPass implements CompilerPassInterface
 {
     /**
-     * @param ContainerBuilder $container
+     * Сохраняем информацию о всех провайдерах курсов валют в менеджер провайдеров
+     * @param ContainerBuilder $container DI контейнер
      */
     public function process(ContainerBuilder $container)
     {

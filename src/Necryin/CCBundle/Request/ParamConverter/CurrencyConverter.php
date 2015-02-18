@@ -3,7 +3,6 @@
  * User: human
  * Date: 13.02.15
  */
-
 namespace Necryin\CCBundle\Request\ParamConverter;
 
 use Sensio\Bundle\FrameworkExtraBundle\Request\ParamConverter\ParamConverterInterface;
@@ -11,7 +10,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Конвертер параметров для калькулятора валют
+ * Конвертер параметров для конвертера валют
  * Class CurrencyConverter
  */
 class CurrencyConverter implements ParamConverterInterface
@@ -19,8 +18,11 @@ class CurrencyConverter implements ParamConverterInterface
 
     /**
      * Пробрасываем параметры в контроллер
+     *
      * @param Request        $request
      * @param ParamConverter $configuration
+     *
+     * @return bool
      */
     public function apply(Request $request, ParamConverter $configuration)
     {
@@ -33,10 +35,15 @@ class CurrencyConverter implements ParamConverterInterface
         $request->attributes->set('to', $to);
         $request->attributes->set('amount', $amount);
         $request->attributes->set('provider', $provider);
+
+        return true;
     }
 
     /**
+     * Возможно ли применить данный конвертер
+     *
      * @param ParamConverter $configuration
+     *
      * @return bool
      */
     public function supports(ParamConverter $configuration)

@@ -3,7 +3,6 @@
  * User: human
  * Date: 13.02.15
  */
-
 namespace Necryin\CCBundle\Provider;
 
 /**
