@@ -6,6 +6,7 @@
 namespace Necryin\CCBundle\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 /**
@@ -18,6 +19,7 @@ class DefaultController extends Controller
     /**
      * Отрисовка основной страницы приложения
      * @Route("/", name="homepage")
+     * @Method({"GET"})
      */
     public function indexAction()
     {
