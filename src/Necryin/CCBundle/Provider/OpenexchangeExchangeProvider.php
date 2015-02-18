@@ -7,7 +7,6 @@ namespace Necryin\CCBundle\Provider;
 
 use Guzzle\Http\Exception\RequestException;
 use Guzzle\Service\ClientInterface;
-use Necryin\CCBundle\Object\Rate;
 use Necryin\CCBundle\Exception\ExchangeProviderException;
 use Guzzle\Common\Exception\RuntimeException;
 
@@ -68,7 +67,7 @@ class OpenexchangeExchangeProvider implements ExchangeProviderInterface
             $response = $this->client->get($url)->send();
             $parsedResponse = $response->json();
         }
-            // @codeCoverageIgnoreStart
+        // @codeCoverageIgnoreStart
         catch(RequestException $reqe)
         {
             throw new ExchangeProviderException('RequestException: ' . $reqe->getMessage());
@@ -91,12 +90,12 @@ class OpenexchangeExchangeProvider implements ExchangeProviderInterface
         $result['date'] = (string) $parsedResponse['timestamp'];
         $result['base'] = (string) $parsedResponse['base'];
 
-        foreach($parsedResponse['rates'] as $key => $value)
+        foreach($parsedResponse['rates'] as $code => $value)
         {
             if(is_numeric($value) && 0 < $value)
             {
-                $value = 1 / $value;
-                $result['rates'][$key] = new Rate($key, $value);
+                $rate = 1 / $value;
+                $result['rates'][$code] = $rate;
             }
         }
 

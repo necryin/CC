@@ -9,7 +9,6 @@ namespace Necryin\CCBundle\Tests\Unit\Provider;
 use Guzzle\Http\Message\Response;
 use Guzzle\Service\Client;
 use Necryin\CCBundle\Exception\ExchangeProviderException;
-use Necryin\CCBundle\Object\Rate;
 use Necryin\CCBundle\Provider\CbExchangeProvider;
 
 /**
@@ -46,10 +45,10 @@ class CbExchangeProviderTest extends \PHPUnit_Framework_TestCase
             'base'  => 'RUB',
             'date'  => '1424217600',
             'rates' => [
-                'RUB' => new Rate('RUB', 1),
-                'AUD' => new Rate('AUD', 48.9361),
-                'AZN' => new Rate('AZN', 80.0654),
-                'GBP' => new Rate('GBP', 96.4648),
+                'RUB' => 1,
+                'AUD' => 48.9361,
+                'AZN' => 80.0654,
+                'GBP' => 96.4648,
             ]
         ];
 

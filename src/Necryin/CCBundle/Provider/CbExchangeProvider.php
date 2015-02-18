@@ -6,7 +6,6 @@
 namespace Necryin\CCBundle\Provider;
 
 use Guzzle\Service\ClientInterface;
-use Necryin\CCBundle\Object\Rate;
 use Guzzle\Http\Exception\RequestException;
 use Necryin\CCBundle\Exception\ExchangeProviderException;
 use Guzzle\Common\Exception\RuntimeException;
@@ -67,7 +66,7 @@ class CbExchangeProvider implements ExchangeProviderInterface
             $response = $this->client->get($url)->send();
             $parsedResponse = $response->xml();
         }
-            // @codeCoverageIgnoreStart
+        // @codeCoverageIgnoreStart
         catch(RequestException $reqe)
         {
             throw new ExchangeProviderException('RequestException: ' . $reqe->getMessage());
@@ -90,7 +89,7 @@ class CbExchangeProvider implements ExchangeProviderInterface
         $result['date'] = (new \DateTime($date))->format('U');
 
         /** добавляем курс базовой валюты в курсы */
-        $result['rates'][$result['base']] = new Rate($result['base'], 1);
+        $result['rates'][$result['base']] = 1;
 
         /**
          * Разбираем xml и вносим данные в класс курса валюты Rate
@@ -105,7 +104,7 @@ class CbExchangeProvider implements ExchangeProviderInterface
                 /** из цб приходит невалидное значение вида 12,123 -> исправим это!
                  * и поделим на номинал курса */
                 $rate = floatval(str_replace(',', '.', $value)) / $nominal;
-                $result['rates'][$code] = new Rate($code, $rate);
+                $result['rates'][$code] = $rate;
             }
         }
 

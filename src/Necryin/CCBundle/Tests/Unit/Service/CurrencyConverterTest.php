@@ -10,7 +10,6 @@ use Necryin\CCBundle\Exception\ConvertCurrencyServiceException;
 use Necryin\CCBundle\Exception\ExchangeProviderManagerException;
 use Necryin\CCBundle\Manager\ExchangeProviderManager;
 use Necryin\CCBundle\Manager\ExchangeProviderManagerInterface;
-use Necryin\CCBundle\Object\Rate;
 use Necryin\CCBundle\Provider\CbExchangeProvider;
 use Necryin\CCBundle\Service\CurrencyConverterService;
 use Doctrine\Common\Cache\Cache;
@@ -94,6 +93,7 @@ class CurrencyConverterTest extends \PHPUnit_Framework_TestCase
 
         $exchangeProviderManager->expects($this->any())
             ->method('getProvider')
+            ->with('sdfg')
             ->willThrowException(new ExchangeProviderManagerException());
 
         $currencyConverter = new CurrencyConverterService($exchangeProviderManager, null);
@@ -106,10 +106,10 @@ class CurrencyConverterTest extends \PHPUnit_Framework_TestCase
             'base'  => 'RUB',
             'date'  => time() + 10,
             'rates' => [
-                'RUB' => new Rate('RUB', 1),
-                'AUD' => new Rate('AUD', 48.9361),
-                'AZN' => new Rate('AZN', 80.0654),
-                'GBP' => new Rate('GBP', 96.4648),
+                'RUB' => 1,
+                'AUD' => 48.9361,
+                'AZN' => 80.0654,
+                'GBP' => 96.4648,
             ]
         ];
         $exchangeProviderManager = $this->getMockBuilder(ExchangeProviderManagerInterface::class)
@@ -154,10 +154,10 @@ class CurrencyConverterTest extends \PHPUnit_Framework_TestCase
             'base'  => 'RUB',
             'date'  => 1424206800,
             'rates' => [
-                'RUB' => new Rate('RUB', 1),
-                'AUD' => new Rate('AUD', 48.9361),
-                'AZN' => new Rate('AZN', 80.0654),
-                'GBP' => new Rate('GBP', 96.4648),
+                'RUB' => 1,
+                'AUD' => 48.9361,
+                'AZN' => 80.0654,
+                'GBP' => 96.4648,
             ]
         ];
 

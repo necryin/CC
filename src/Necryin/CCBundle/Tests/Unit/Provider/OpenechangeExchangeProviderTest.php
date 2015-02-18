@@ -10,7 +10,6 @@ namespace Necryin\CCBundle\Tests\Unit\Provider;
 use Guzzle\Http\Message\Response;
 use Guzzle\Service\Client;
 use Necryin\CCBundle\Exception\ExchangeProviderException;
-use Necryin\CCBundle\Object\Rate;
 use Necryin\CCBundle\Provider\OpenexchangeExchangeProvider;
 
 /**
@@ -47,9 +46,9 @@ class OpenechangeExchangeProviderTest extends \PHPUnit_Framework_TestCase
             'date'  => 1424170862,
             'base'  => 'USD',
             'rates' => [
-                'AED' => new Rate('AED', 0.27225849310369),
-                'AFN' => new Rate('AFN', 0.017432141032994),
-                'ALL' => new Rate('ALL', 0.0081090965412271),
+                'AED' => 0.27225849310369,
+                'AFN' => 0.017432141032994,
+                'ALL' => 0.0081090965412271,
             ]
         ];
 

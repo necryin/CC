@@ -13,6 +13,7 @@ angular.module('cc', [])
                 success(function (data, status, headers, config) {
                     console.log(data);
                     $scope.providers = data;
+                    $scope.currentProvider = $scope.defaultProvider;
                     console.log($scope.providers);
                 }).
                 error(function (data, status, headers, config) {

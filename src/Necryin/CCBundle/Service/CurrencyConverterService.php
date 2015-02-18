@@ -9,7 +9,6 @@ use Doctrine\Common\Cache\Cache;
 use Necryin\CCBundle\Exception\ConvertCurrencyServiceException;
 use Necryin\CCBundle\Exception\ExchangeProviderManagerException;
 use Necryin\CCBundle\Manager\ExchangeProviderManagerInterface;
-use Necryin\CCBundle\Object\Rate;
 use Necryin\CCBundle\Provider\ExchangeProviderInterface;
 
 /**
@@ -88,15 +87,15 @@ class CurrencyConverterService
             throw new ConvertCurrencyServiceException('Invalid amount: ' . $amount);
         }
 
-        /** @var Rate $fromRate */
-        $fromRate = $rates['rates'][$from];
-        /** @var Rate $toRate */
-        $toRate = $rates['rates'][$to];
-
-        $amount = floatval($amount);
-
-        /** $toRate->getRate() гарантированно > 0 (проверяется в провайдерах) */
-        $result = $fromRate->getRate() / $toRate->getRate() * $amount;
+        if(0 === $rates['rates'][$to])
+        {
+            $result = 0;
+        }
+        else
+        {
+            $amount = floatval($amount);
+            $result = $rates['rates'][$from] / $rates['rates'][$to] * $amount;
+        }
 
         return ['from' => $from, 'to' => $to, 'amount' => $amount, 'value' => $result];
     }

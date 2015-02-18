@@ -4,6 +4,10 @@ namespace Necryin\CCBundle\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
+/**
+ * Тест Api контроллера
+ * Class ApiControllerTest
+ */
 class ApiControllerTest extends WebTestCase
 {
     public function testConvert()
@@ -52,7 +56,7 @@ class ApiControllerTest extends WebTestCase
     public function testGetRates()
     {
         $expects =
-            '{"base":"RUB","date":1424253606,"rates":{"RUB":{"code":"RUB","rate":1},"USD":{"code":"USD","rate":30},"EUR":{"code":"EUR","rate":48}}}';
+            '{"base":"RUB","date":1424253606,"rates":{"RUB":1,"USD":30,"EUR":48}}';
 
         $client = static::createClient();
         $crawler = $client->request('GET', '/stub/rates');

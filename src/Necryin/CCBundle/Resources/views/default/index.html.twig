@@ -6,11 +6,11 @@
     <div ng-app="cc" ng-controller="MainController as main" class="container-fluid">
         Из
         <select ng-model="from" id="from">
-            <option ng-repeat="rate in rates[currentProvider]">{{ rate.code }}</option>
+            <option ng-repeat="(code, rate) in rates[currentProvider]">{{ code }}</option>
         </select>
         в
         <select ng-model="to" id="to">
-            <option ng-repeat="rate in rates[currentProvider]">{{ rate.code }}</option>
+            <option ng-repeat="(code, rate) in rates[currentProvider]">{{ code }}</option>
         </select>
 
         <div>Провайдеры курсов

@@ -6,7 +6,6 @@
 namespace Necryin\CCBundle\Provider;
 
 use Guzzle\Service\ClientInterface;
-use Necryin\CCBundle\Object\Rate;
 
 /**
  *  Тестовый провайдер
@@ -39,9 +38,9 @@ class StubExchangeProvider implements ExchangeProviderInterface
             'base'  => 'RUB',
             'date'  => 1424253606,
             'rates' => [
-                'RUB' => new Rate('RUB', 1),
-                'USD' => new Rate('USD', 30),
-                'EUR' => new Rate('EUR', 48),
+                'RUB' => 1,
+                'USD' => 30,
+                'EUR' => 48,
             ]
         ];
 
