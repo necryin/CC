@@ -3,6 +3,6 @@ parameters:
     locale:            en
 
     # A secret key that's used to generate certain security-related tokens
-    secret:            ThisTokenIsNotSoSecretChangeIt
+    secret:            73f0169cd12044e08c98f22933e894c4
 
     openexchange.app_id: 73f0169cd12044e08c98f22933e894c4
