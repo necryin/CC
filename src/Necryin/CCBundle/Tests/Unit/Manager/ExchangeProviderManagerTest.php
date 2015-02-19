@@ -12,6 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Тест менеджера провайдеров
+ *
  * Class ExchangeProviderManager
  */
 class ExchangeProviderManagerTest extends \PHPUnit_Framework_TestCase

@@ -7,7 +7,9 @@ namespace Necryin\CCBundle\Service;
 
 use Doctrine\Common\Cache\Cache;
 use Necryin\CCBundle\Exception\ConvertCurrencyServiceException;
+use Necryin\CCBundle\Exception\CurrencyManagerException;
 use Necryin\CCBundle\Exception\ExchangeProviderManagerException;
+use Necryin\CCBundle\Manager\CurrencyManager;
 use Necryin\CCBundle\Manager\ExchangeProviderManagerInterface;
 
 /**
@@ -28,9 +30,14 @@ class CurrencyConverterService
     /**
      * Кэш
      *
-     * @var Cache
+     * @var null|Cache
      */
     private $cache;
+
+    /**
+     * @var CurrencyManager
+     */
+    private $currencyManager;
 
     /**
      * Префикс используемый в кеше
@@ -39,11 +46,15 @@ class CurrencyConverterService
 
     /**
      * @param ExchangeProviderManagerInterface $exchangeProviderManager Поставщик провайдеров
-     * @param Cache                            $cache                   Кэш
+     * @param null|Cache                       $cache                   Кэш
+     * @param CurrencyManager                  $currencyManager         Менеджер валют
      */
-    public function __construct(ExchangeProviderManagerInterface $exchangeProviderManager, Cache $cache = null)
+    public function __construct(ExchangeProviderManagerInterface $exchangeProviderManager,
+                                CurrencyManager $currencyManager,
+                                Cache $cache = null)
     {
         $this->exchangeProviderManager = $exchangeProviderManager;
+        $this->currencyManager = $currencyManager;
         $this->cache = $cache;
     }
 
@@ -63,12 +74,22 @@ class CurrencyConverterService
     {
         $rates = $this->getRates($providerAlias);
 
-        if(empty($rates['rates'][$from]))
+        try
+        {
+            $fromCurrency = $this->currencyManager->findCurrency($from);
+            $toCurrency   = $this->currencyManager->findCurrency($to);
+        }
+        catch(CurrencyManagerException $cme)
+        {
+            throw new ConvertCurrencyServiceException("Internal error");
+        }
+
+        if(empty($rates['rates'][$fromCurrency]))
         {
             throw new ConvertCurrencyServiceException("Provider doesn't provide $from rate");
         }
 
-        if(empty($rates['rates'][$to]))
+        if(empty($rates['rates'][$toCurrency]))
         {
             throw new ConvertCurrencyServiceException("Provider doesn't provide $to rate");
         }
@@ -79,7 +100,7 @@ class CurrencyConverterService
         }
 
         $amount = floatval($amount);
-        $result = $rates['rates'][$from] / $rates['rates'][$to] * $amount;
+        $result = $rates['rates'][$fromCurrency] / $rates['rates'][$toCurrency] * $amount;
 
         return ['from' => $from, 'to' => $to, 'amount' => $amount, 'value' => $result];
     }
@@ -130,7 +151,7 @@ class CurrencyConverterService
             return null;
         }
 
-        return $cachedRates;
+        return unserialize($cachedRates);
     }
 
     /**
@@ -149,7 +170,7 @@ class CurrencyConverterService
             return false;
         }
 
-        return $this->cache->save($cacheKey, $rates, $ttl);
+        return $this->cache->save($cacheKey, serialize($rates), $ttl);
     }
 
     /**
