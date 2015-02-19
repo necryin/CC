@@ -11,8 +11,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 /**
  * Основной контроллер приложения для веб форм
- *
- * Class DefaultController
  */
 class DefaultController extends Controller
 {

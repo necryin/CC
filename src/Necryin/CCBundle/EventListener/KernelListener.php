@@ -28,6 +28,8 @@ class KernelListener
     }
 
     /**
+     * Создает ответ для исключения
+     *
      * @param \Exception $e
      *
      * @return JsonResponse

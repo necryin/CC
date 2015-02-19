@@ -8,18 +8,18 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
  * Бандл конвертера валют
- * Class NecryinCCBundle
  */
 class NecryinCCBundle extends Bundle
 {
     /**
      * Сборка DI контейнера
      *
-     * @param ContainerBuilder $container
+     * @param ContainerBuilder $container DI контейнер
      */
     public function build(ContainerBuilder $container)
     {
         parent::build($container);
+
         $container->addCompilerPass(new ProviderCompilerPass());
     }
 

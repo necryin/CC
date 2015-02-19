@@ -11,8 +11,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Конвертер параметров для конвертера валют
- *
- * Class CurrencyConverter
  */
 class CurrencyConverter implements ParamConverterInterface
 {
@@ -32,10 +30,10 @@ class CurrencyConverter implements ParamConverterInterface
         $amount = $request->query->get('amount');
         $provider = $request->query->get('provider');
 
-        $request->attributes->set('from', strtoupper($from));
-        $request->attributes->set('to', strtoupper($to));
+        $request->attributes->set('from', $from);
+        $request->attributes->set('to', $to);
         $request->attributes->set('amount', $amount);
-        $request->attributes->set('provider', strtolower($provider));
+        $request->attributes->set('provider', $provider);
 
         return true;
     }

@@ -9,10 +9,9 @@ use Doctrine\Common\Cache\Cache;
 use Necryin\CCBundle\Exception\ConvertCurrencyServiceException;
 use Necryin\CCBundle\Exception\ExchangeProviderManagerException;
 use Necryin\CCBundle\Manager\ExchangeProviderManagerInterface;
-use Necryin\CCBundle\Provider\ExchangeProviderInterface;
 
 /**
- * конвертер валют
+ * Конвертер валют
  *
  * Class CurrencyConverterService
  */
@@ -27,6 +26,8 @@ class CurrencyConverterService
     private $exchangeProviderManager;
 
     /**
+     * Кэш
+     *
      * @var Cache
      */
     private $cache;
@@ -38,7 +39,7 @@ class CurrencyConverterService
 
     /**
      * @param ExchangeProviderManagerInterface $exchangeProviderManager Поставщик провайдеров
-     * @param Cache                            $cache                   Интерфейс кэша guzzle
+     * @param Cache                            $cache                   Кэш
      */
     public function __construct(ExchangeProviderManagerInterface $exchangeProviderManager, Cache $cache = null)
     {
@@ -54,7 +55,7 @@ class CurrencyConverterService
      * @param float  $amount        Сумма изначальной валюты
      * @param string $providerAlias Псевдоним провайдера курсов валют
      *
-     * @return array
+     * @return array ['from' => $from, 'to' => $to, 'amount' => $amount, 'value' => результат вычислений]
      *
      * @throws ConvertCurrencyServiceException
      */
@@ -64,17 +65,17 @@ class CurrencyConverterService
 
         if(empty($rates['rates'][$from]))
         {
-            throw new ConvertCurrencyServiceException('Provider doesn\'t provide ' . $from . ' rate');
+            throw new ConvertCurrencyServiceException("Provider doesn't provide $from rate");
         }
 
         if(empty($rates['rates'][$to]))
         {
-            throw new ConvertCurrencyServiceException('Provider doesn\'t provide ' . $to . ' rate');
+            throw new ConvertCurrencyServiceException("Provider doesn't provide $to rate");
         }
 
         if(!is_numeric($amount))
         {
-            throw new ConvertCurrencyServiceException('Invalid amount: ' . $amount);
+            throw new ConvertCurrencyServiceException("Invalid amount: $amount");
         }
 
         $amount = floatval($amount);
@@ -86,16 +87,15 @@ class CurrencyConverterService
     /**
      * Получить курсы валют по псевдониму провайдера
      *
-     * @param string $providerAlias
+     * @param string $providerAlias псевдоним провайдера
      *
-     * @return array
+     * @return array курсы валют
      * @throws ConvertCurrencyServiceException
      */
     public function getRates($providerAlias)
     {
         try
         {
-            /** @var ExchangeProviderInterface $provider */
             $provider = $this->exchangeProviderManager->getProvider($providerAlias);
         }
         catch(ExchangeProviderManagerException $e)
@@ -103,11 +103,13 @@ class CurrencyConverterService
             throw new ConvertCurrencyServiceException($e->getMessage());
         }
 
-        if(null === $rates = $this->getCachedRates($providerAlias))
+        $cacheKey = $this->getProviderCacheKey($providerAlias);
+
+        $rates = $this->getCachedRates($cacheKey);
+        if(null === $rates)
         {
             $rates = $provider->getRates();
-            $ttl = $rates['date'] + $provider->getTtl() - time();
-            $this->cacheRates($providerAlias, $ttl, $rates);
+            $this->cacheRates($cacheKey, $rates, $provider->getTtl());
         }
 
         return $rates;
@@ -116,39 +118,49 @@ class CurrencyConverterService
     /**
      * Пробуем взять курсы из кеша
      *
-     * @param $providerString
+     * @param string $cacheKey кеш ключ провайдера
      *
      * @return array|null
      */
-    public function getCachedRates($providerString)
+    public function getCachedRates($cacheKey)
     {
-        $cacheKey = static::CACHE_PREFIX . $providerString;
-        if(null === $this->cache || !$cachedRates = $this->cache->fetch($cacheKey))
+
+        if(null === $this->cache || !($cachedRates = $this->cache->fetch($cacheKey)))
         {
             return null;
         }
 
-        return unserialize($cachedRates);
+        return $cachedRates;
     }
 
     /**
      * Пробуем закешировать результат
      *
-     * @param string $providerString
-     * @param int    $ttl
-     * @param array  $rates
+     * @param string $cacheKey кеш ключ провайдера
+     * @param int    $ttl      время кеширования в секундах
+     * @param array  $rates    массив курсов
      *
      * @return bool
      */
-    private function cacheRates($providerString, $ttl, array $rates)
+    private function cacheRates($cacheKey, array $rates, $ttl)
     {
-        if(null === $this->cache || empty($rates['date']))
+        if(null === $this->cache)
         {
             return false;
         }
-        $cacheKey = static::CACHE_PREFIX . $providerString;
 
-        return $this->cache->save($cacheKey, serialize($rates), $ttl);
+        return $this->cache->save($cacheKey, $rates, $ttl);
     }
 
+    /**
+     * Возвращаем кеш ключ провайдера
+     *
+     * @param string $providerAlias псевдоним провайдера
+     *
+     * @return string
+     */
+    public function getProviderCacheKey($providerAlias)
+    {
+        return static::CACHE_PREFIX . $providerAlias;
+    }
 }

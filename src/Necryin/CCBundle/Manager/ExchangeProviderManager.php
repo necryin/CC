@@ -18,14 +18,12 @@ class ExchangeProviderManager implements ExchangeProviderManagerInterface
     /**
      * Провайдеры курсов валют
      *
-     * @var array
+     * @var string[]
      */
     private $providers = [];
 
     /**
-     * DI контейнер
-     *
-     * @param ContainerInterface $container
+     * @param ContainerInterface $container DI контейнер
      */
     public function __construct(ContainerInterface $container)
     {
@@ -35,21 +33,19 @@ class ExchangeProviderManager implements ExchangeProviderManagerInterface
     /** {@inheritdoc} */
     public function addProvider($providerServiceId, $alias)
     {
+        if(!$this->container->has($providerServiceId))
+        {
+            throw new ExchangeProviderManagerException("Container doesn't have provider service: $providerServiceId");
+        }
         $this->providers[$alias] = $providerServiceId;
     }
 
     /** {@inheritdoc} */
     public function getProvider($alias)
     {
-        if(empty($this->providers))
+        if(empty($this->providers[$alias]))
         {
-            throw new ExchangeProviderManagerException('There are no exchange providers');
-        }
-        if(!array_key_exists($alias, $this->providers) ||
-           !$this->container->has($this->providers[$alias])
-        )
-        {
-            throw new ExchangeProviderManagerException('Invalid provider name: ' . $alias);
+            throw new ExchangeProviderManagerException("Invalid provider name: $alias");
         }
 
         return $this->container->get($this->providers[$alias]);

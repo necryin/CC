@@ -15,34 +15,31 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 /**
  * Контроллер API конвертера валют
- *
- * Class ApiController
  */
 class ApiController extends Controller
 {
 
     /**
      * Пример запроса к апи /currency?from=DKK&to=EUR&amount=100&provider=openexchange
-     * Доступные провайдеры: openexchange | cb
      *
      * @Route("/currency.{_format}",
      *  defaults={"_format": "json"},
-     *  requirements={ "_format": "xml|json"}
+     *  requirements={ "_format": "json"}
      * )
      * @Method({"GET"})
      * @ParamConverter(converter="currency_converter")
      * @Rest\View
      *
-     * @param string $from
-     * @param string $to
-     * @param string $amount
-     * @param string $provider
+     * @param string $from          Из какой валюты конвертим
+     * @param string $to            В какую валюту конвертим
+     * @param float  $amount        Сумма изначальной валюты
+     * @param string $provider      Псевдоним провайдера курсов валют
      *
-     * @return array
+     * @return array ['from' => $from, 'to' => $to, 'amount' => $amount, 'value' => результат вычислений]
      */
     public function convertAction($from, $to, $amount, $provider)
     {
-        return $this->getCurrencyService()->convert($from, $to, $amount, $provider);
+        return $this->getCurrencyConverterService()->convert($from, $to, $amount, $provider);
     }
 
     /**
@@ -50,7 +47,7 @@ class ApiController extends Controller
      *
      * @Route("/{provider}/rates.{_format}",
      *  defaults={"_format": "json", "providerAlias": "cb"},
-     *  requirements={ "_format": "xml|json"}
+     *  requirements={ "_format": "json"}
      * )
      * @Method({"GET"})
      *
@@ -58,12 +55,12 @@ class ApiController extends Controller
      *
      * @param string $provider Псевдоним провайдера в системе
      *
-     * @return array
+     * @return array массив курсов валют
      */
 
     public function getRatesAction($provider)
     {
-        return $this->getCurrencyService()->getRates($provider);
+        return $this->getCurrencyConverterService()->getRates($provider);
     }
 
     /**
@@ -71,13 +68,13 @@ class ApiController extends Controller
      *
      * @Route("/providers.{_format}",
      *  defaults={"_format": "json"},
-     *  requirements={ "_format": "xml|json"}
+     *  requirements={ "_format": "json"}
      * )
      * @Method({"GET"})
      *
      * @Rest\View
      *
-     * @return array
+     * @return string[] Массив псевдонимов провайдеров
      */
     public function getProvidersAliasesAction()
     {
@@ -85,20 +82,22 @@ class ApiController extends Controller
     }
 
     /**
+     * Возвращает менеджер провайдеров курсов
+     *
      * @return ExchangeProviderManager
      */
     private function getExchangeProviderManager()
     {
-        /** @var ExchangeProviderManager */
-        return $this->get("necryin.exchange_provider_manager");
+        return $this->get('necryin.exchange_provider_manager');
     }
 
     /**
+     * Возвращает сервис конвертации валют
+     *
      * @return CurrencyConverterService
      */
-    private function getCurrencyService()
+    private function getCurrencyConverterService()
     {
-        /** @var CurrencyConverterService */
         return $this->get('necryin.currency_converter_service');
     }
 }

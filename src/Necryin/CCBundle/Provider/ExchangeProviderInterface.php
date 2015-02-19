@@ -15,12 +15,12 @@ interface ExchangeProviderInterface
     /**
      * Получить курсы валют
      *
-     * @return array
+     * @return array курсы валют
      */
     public function getRates();
 
     /**
-     * Частота обновления курсов на провайдере
+     * Период обновления курсов на провайдере в секундах
      *
      * @return int
      */

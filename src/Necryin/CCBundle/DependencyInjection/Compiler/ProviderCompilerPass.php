@@ -10,8 +10,6 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 
 /**
  * Компилирует DI контейнер
- *
- * Class ProviderCompilerPass
  */
 class ProviderCompilerPass implements CompilerPassInterface
 {
@@ -34,7 +32,7 @@ class ProviderCompilerPass implements CompilerPassInterface
         {
             foreach($tags as $attributes)
             {
-                $definition->addMethodCall('addProvider', [$id, $attributes["alias"]]);
+                $definition->addMethodCall('addProvider', [$id, $attributes['alias']]);
             }
         }
     }

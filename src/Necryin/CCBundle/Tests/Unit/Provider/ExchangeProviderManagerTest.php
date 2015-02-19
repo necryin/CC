@@ -24,7 +24,7 @@ class ExchangeProviderManagerTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $container->expects($this->once())
+        $container->expects($this->any())
             ->method('has')
             ->with('1')
             ->will($this->returnValue(true));

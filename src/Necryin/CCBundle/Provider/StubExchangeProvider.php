@@ -9,22 +9,46 @@ use Guzzle\Service\ClientInterface;
 
 /**
  *  Тестовый провайдер
- *
- *  Class CbExchangeProvider
  */
 class StubExchangeProvider implements ExchangeProviderInterface
 {
     /**
+     * Guzzle клиент
+     *
      * @var ClientInterface
      */
     private $client;
+
     /**
+     * Период обновления курсов на провайдере в секундах
+     *
      * @var int
      */
     private $ttl = 777;
 
     /**
-     * @param ClientInterface $client
+     * Курсы валют
+     *
+     * @var array
+     */
+    private $rates;
+
+    /**
+     * Курсы по умолчанию
+     * @var array
+     */
+    private $defaultRates = [
+        'base'  => 'RUB',
+        'date'  => 1424253606,
+        'rates' => [
+            'RUB' => 1,
+            'USD' => 30,
+            'EUR' => 48,
+        ]
+    ];
+
+    /**
+     * @param ClientInterface $client Guzzle клиент
      */
     public function __construct(ClientInterface $client)
     {
@@ -40,17 +64,17 @@ class StubExchangeProvider implements ExchangeProviderInterface
     /** {@inheritdoc} */
     public function getRates()
     {
-        $rates = [
-            'base'  => 'RUB',
-            'date'  => 1424253606,
-            'rates' => [
-                'RUB' => 1,
-                'USD' => 30,
-                'EUR' => 48,
-            ]
-        ];
+        return isset($this->rates) ? $this->rates : $this->defaultRates;
+    }
 
-        return $rates;
+    /**
+     * Сеттер курсов валют
+     *
+     * @param array $rates
+     */
+    public function setRates(array $rates)
+    {
+        $this->rates = $rates;
     }
 
 }

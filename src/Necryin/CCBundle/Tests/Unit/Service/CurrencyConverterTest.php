@@ -10,7 +10,7 @@ use Necryin\CCBundle\Exception\ConvertCurrencyServiceException;
 use Necryin\CCBundle\Exception\ExchangeProviderManagerException;
 use Necryin\CCBundle\Manager\ExchangeProviderManager;
 use Necryin\CCBundle\Manager\ExchangeProviderManagerInterface;
-use Necryin\CCBundle\Provider\CbExchangeProvider;
+use Necryin\CCBundle\Provider\ExchangeProviderInterface;
 use Necryin\CCBundle\Service\CurrencyConverterService;
 use Doctrine\Common\Cache\Cache;
 
@@ -124,7 +124,7 @@ class CurrencyConverterTest extends \PHPUnit_Framework_TestCase
     {
         $rates = [
             'base'  => 'RUB',
-            'date'  => time() + 10,
+            'timestamp'  => time() + 10,
             'rates' => [
                 'RUB' => 1,
                 'AUD' => 48.9361,
@@ -136,7 +136,7 @@ class CurrencyConverterTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $cbProvider = $this->getMockBuilder(CbExchangeProvider::class)
+        $cbProvider = $this->getMockBuilder(ExchangeProviderInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -146,7 +146,7 @@ class CurrencyConverterTest extends \PHPUnit_Framework_TestCase
 
         $cbProvider->expects($this->any())
             ->method('getTtl')
-            ->will($this->returnValue(3));
+            ->will($this->returnValue(10));
 
         $exchangeProviderManager->expects($this->any())
             ->method('getProvider')
@@ -163,7 +163,7 @@ class CurrencyConverterTest extends \PHPUnit_Framework_TestCase
         $currencyConverter = new CurrencyConverterService($exchangeProviderManager, $cache);
 
         $result = $currencyConverter->getRates('cb');
-        $cachedResult = $currencyConverter->getCachedRates('cb');
+        $cachedResult = $currencyConverter->getCachedRates(CurrencyConverterService::CACHE_PREFIX . 'cb');
 
         $this->assertEquals($result, $cachedResult);
     }
@@ -172,7 +172,7 @@ class CurrencyConverterTest extends \PHPUnit_Framework_TestCase
     {
         $rates[] = [[
             'base'  => 'RUB',
-            'date'  => 1424206800,
+            'timestamp'  => 1424206800,
             'rates' => [
                 'RUB' => 1,
                 'AUD' => 48.9361,
@@ -190,7 +190,7 @@ class CurrencyConverterTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $cbProvider = $this->getMockBuilder(CbExchangeProvider::class)
+        $cbProvider = $this->getMockBuilder(ExchangeProviderInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 

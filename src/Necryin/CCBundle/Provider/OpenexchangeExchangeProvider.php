@@ -18,6 +18,8 @@ use Guzzle\Common\Exception\RuntimeException;
 class OpenexchangeExchangeProvider implements ExchangeProviderInterface
 {
     /**
+     * Guzzle клиент
+     *
      * @var ClientInterface
      */
     private $client;
@@ -30,11 +32,11 @@ class OpenexchangeExchangeProvider implements ExchangeProviderInterface
     private $source = "https://openexchangerates.org/api/latest.json?app_id=";
 
     /**
-     * Период обновления курсов
+     * Период обновления курсов в секундах
      *
      * @var int
      */
-    private $ttl = 3600;
+      const TTL = 3600;
 
     /**
      * Обязательные поля валидного json для провайдера
@@ -44,7 +46,7 @@ class OpenexchangeExchangeProvider implements ExchangeProviderInterface
     private $required = ['timestamp', 'base', 'rates'];
 
     /**
-     * @param ClientInterface $client Guzzle Client Interface
+     * @param ClientInterface $client Guzzle клиент
      * @param string          $appId  ключ доступа к API
      */
     public function __construct(ClientInterface $client, $appId)
@@ -56,7 +58,7 @@ class OpenexchangeExchangeProvider implements ExchangeProviderInterface
     /** {@inheritdoc} */
     public function getTtl()
     {
-        return $this->ttl;
+        return self::TTL;
     }
 
     /** {@inheritdoc} */
@@ -68,7 +70,6 @@ class OpenexchangeExchangeProvider implements ExchangeProviderInterface
             $response = $this->client->get($url)->send();
             $parsedResponse = $response->json();
         }
-        // @codeCoverageIgnoreStart
         catch(RequestException $reqe)
         {
             throw new ExchangeProviderException('RequestException: ' . $reqe->getMessage());
@@ -77,26 +78,24 @@ class OpenexchangeExchangeProvider implements ExchangeProviderInterface
         {
             throw new ExchangeProviderException('RuntimeException: ' . $rune->getMessage());
         }
-        // @codeCoverageIgnoreEnd
 
         foreach($this->required as $require)
         {
             if(empty($parsedResponse[$require]))
             {
-                throw new ExchangeProviderException('Invalid response params');
+                throw new ExchangeProviderException("Invalid response param: $require");
             }
         }
 
         $result = [];
-        $result['date'] = (string) $parsedResponse['timestamp'];
+        $result['timestamp'] = (string) $parsedResponse['timestamp'];
         $result['base'] = (string) $parsedResponse['base'];
 
         foreach($parsedResponse['rates'] as $code => $value)
         {
             if(is_numeric($value) && 0 < $value)
             {
-                $rate = 1 / $value;
-                $result['rates'][$code] = $rate;
+                $result['rates'][$code] = 1 / $value;
             }
         }
 

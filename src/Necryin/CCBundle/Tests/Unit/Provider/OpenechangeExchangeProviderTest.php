@@ -7,6 +7,8 @@
 namespace Necryin\CCBundle\Tests\Unit\Provider;
 
 
+use Guzzle\Common\Exception\RuntimeException;
+use Guzzle\Http\Exception\RequestException;
 use Guzzle\Http\Message\Response;
 use Guzzle\Service\Client;
 use Necryin\CCBundle\Exception\ExchangeProviderException;
@@ -43,7 +45,7 @@ class OpenechangeExchangeProviderTest extends \PHPUnit_Framework_TestCase
     public function testGetRates()
     {
         $rates = [
-            'date'  => 1424170862,
+            'timestamp'  => 1424170862,
             'base'  => 'USD',
             'rates' => [
                 'AED' => 0.27225849310369,
@@ -84,7 +86,7 @@ class OpenechangeExchangeProviderTest extends \PHPUnit_Framework_TestCase
             ->getMock();
 
         $client = $this->getMockBuilder(Client::class)
-            ->setMethods(['send', 'xml'])
+            ->setMethods(['send'])
             ->getMock();
 
         $client->expects($this->once())
@@ -99,5 +101,42 @@ class OpenechangeExchangeProviderTest extends \PHPUnit_Framework_TestCase
         $cbExchangeProvider->getRates();
     }
 
+    public function testGetRatesRequestException()
+    {
+        $this->setExpectedException(ExchangeProviderException::class);
+        $client = $this->getMockBuilder(Client::class)
+            ->setMethods(['send'])
+            ->getMock();
 
+        $client->expects($this->once())
+            ->method('send')
+            ->willThrowException(new RequestException());
+
+        $cbExchangeProvider = new OpenexchangeExchangeProvider($client, 11);
+        $cbExchangeProvider->getRates();
+    }
+
+    public function testGetRatesRuntimeException()
+    {
+        $this->setExpectedException(ExchangeProviderException::class);
+        $response = $this->getMockBuilder(Response::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $client = $this->getMockBuilder(Client::class)
+            ->setMethods(['send'])
+            ->getMock();
+
+        $client->expects($this->once())
+            ->method('send')
+            ->will($this->returnValue($response));
+
+        $response->expects($this->once())
+            ->method('json')
+            ->willThrowException(new RuntimeException());
+
+
+        $cbExchangeProvider = new OpenexchangeExchangeProvider($client, 11);
+        $cbExchangeProvider->getRates();
+    }
 }

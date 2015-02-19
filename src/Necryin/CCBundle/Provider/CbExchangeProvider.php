@@ -19,6 +19,8 @@ class CbExchangeProvider implements ExchangeProviderInterface
 {
 
     /**
+     * Guzzle клиент
+     *
      * @var ClientInterface
      */
     private $client;
@@ -38,14 +40,14 @@ class CbExchangeProvider implements ExchangeProviderInterface
     private $source = "http://www.cbr.ru/scripts/XML_daily.asp";
 
     /**
-     * Период обновления курсов
+     * Период обновления курсов в секундах
      *
      * @var int
      */
-    private $ttl = 0;
+    const TTL = 3600;
 
     /**
-     * @param ClientInterface $client
+     * @param ClientInterface $client Guzzle клиент
      */
     public function __construct(ClientInterface $client)
     {
@@ -55,19 +57,19 @@ class CbExchangeProvider implements ExchangeProviderInterface
     /** {@inheritdoc} */
     public function getTtl()
     {
-        return $this->ttl;
+        return self::TTL;
     }
 
     /** {@inheritdoc} */
     public function getRates()
     {
         $url = $this->source;
+
         try
         {
             $response = $this->client->get($url)->send();
             $parsedResponse = $response->xml();
         }
-        // @codeCoverageIgnoreStart
         catch(RequestException $reqe)
         {
             throw new ExchangeProviderException('RequestException: ' . $reqe->getMessage());
@@ -76,7 +78,6 @@ class CbExchangeProvider implements ExchangeProviderInterface
         {
             throw new ExchangeProviderException('RuntimeException: ' . $rune->getMessage());
         }
-        // @codeCoverageIgnoreEnd
         if(empty($parsedResponse->attributes()->Date) || empty($parsedResponse->Valute))
         {
             throw new ExchangeProviderException('Invalid response params');
@@ -87,7 +88,16 @@ class CbExchangeProvider implements ExchangeProviderInterface
 
         /** Конвертим дату в timestamp */
         $date = (string) $parsedResponse->attributes()->Date;
-        $result['date'] = (new \DateTime($date))->format('U');
+        try
+        {
+            $date = new \DateTime($date);
+        }
+        catch (\Exception $e)
+        {
+            $date = new \DateTime(date('d.m.Y'));
+        }
+
+        $result['timestamp'] = $date->format('U');
 
         /** добавляем курс базовой валюты в курсы */
         $result['rates'][$result['base']] = 1;

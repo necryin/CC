@@ -17,6 +17,8 @@ interface ExchangeProviderManagerInterface
 {
 
     /**
+     * Добавление провайдера в менеджер
+     *
      * @param string $providerServiceId метка сервиса в контейнере
      * @param string $alias             псевдоним провайдера кусов валют
      */
@@ -25,7 +27,7 @@ interface ExchangeProviderManagerInterface
     /**
      * Получить провайдера курсов валют по его псевдониму
      *
-     * @param $alias
+     * @param string $alias Псевдоним провайдера
      *
      * @return ExchangeProviderInterface
      * @throws ExchangeProviderManagerException
@@ -35,7 +37,7 @@ interface ExchangeProviderManagerInterface
     /**
      * Получить псевдонимы провайдеров
      *
-     * @return array
+     * @return string[] массив псевдонимов провайдеров
      */
     public function getAliases();
 
