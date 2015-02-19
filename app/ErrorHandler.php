@@ -1,8 +1,15 @@
 <?php
 
+/**
+ * Class ErrorHandler
+ */
 class ErrorHandler
 {
 
+    /**
+     * Регистрируем ErrorHandler
+     * @return static
+     */
     public static function register()
     {
         $handler = new static();
@@ -14,6 +21,9 @@ class ErrorHandler
         return $handler;
     }
 
+    /**
+     * Отлавливаем все ошибки и возвращаем клиенту 500
+     */
     public function handleFatal()
     {
         if(null === error_get_last())
