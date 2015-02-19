@@ -13,8 +13,13 @@ use Guzzle\Service\ClientInterface;
  */
 class StubExchangeProvider implements ExchangeProviderInterface
 {
-
+    /**
+     * @var ClientInterface
+     */
     private $client;
+    /**
+     * @var int
+     */
     private $ttl = 777;
 
     /**

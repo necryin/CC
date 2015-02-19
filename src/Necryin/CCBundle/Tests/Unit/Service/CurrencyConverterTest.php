@@ -38,9 +38,11 @@ class CurrencyConverterTest extends \PHPUnit_Framework_TestCase
         $currencyConverter->convert('GG', 'RUB', 2, 'cb');
     }
 
-    public function testConvertFailFrom()
+    /**
+     * @dataProvider failAmounts
+     */
+    public function testConvertFailFrom($from)
     {
-        $from = 'GG';
         $this->setExpectedException(
             ConvertCurrencyServiceException::class,
             'Provider doesn\'t provide ' . $from . ' rate'
@@ -50,9 +52,11 @@ class CurrencyConverterTest extends \PHPUnit_Framework_TestCase
         $currencyConverter->convert($from, 'RUB', 2, 'cb');
     }
 
-    public function testConvertFailTo()
+    /**
+     * @dataProvider failAmounts
+     */
+    public function testConvertFailTo($to)
     {
-        $to = 'GG';
         $this->setExpectedException(
             ConvertCurrencyServiceException::class,
             'Provider doesn\'t provide ' . $to . ' rate'
@@ -62,9 +66,11 @@ class CurrencyConverterTest extends \PHPUnit_Framework_TestCase
         $currencyConverter->convert('RUB', $to, 2, 'cb');
     }
 
-    public function testConvertFailAmount()
+    /**
+     * @dataProvider failAmounts
+     */
+    public function testConvertFailAmount($amount)
     {
-        $amount = '1,12';
         $this->setExpectedException(
             ConvertCurrencyServiceException::class,
             'Invalid amount: ' . $amount
@@ -72,6 +78,11 @@ class CurrencyConverterTest extends \PHPUnit_Framework_TestCase
         $exchangeProviderManager = $this->getExchangeProviderManagerMock();
         $currencyConverter = new CurrencyConverterService($exchangeProviderManager, null);
         $currencyConverter->convert('RUB', 'AUD', $amount, 'cb');
+    }
+
+    public function failAmounts()
+    {
+        return [['1,12'], ['sdfs'], [null], ['0,1'], [false]];
     }
 
     public function testGetRates()
@@ -143,9 +154,9 @@ class CurrencyConverterTest extends \PHPUnit_Framework_TestCase
         $currencyConverter = new CurrencyConverterService($exchangeProviderManager, $cache);
 
         $result = $currencyConverter->getRates('cb');
-        $result2 = $currencyConverter->getCachedRates('cb');
+        $cachedResult = $currencyConverter->getCachedRates('cb');
 
-        $this->assertEquals($result, $result2);
+        $this->assertEquals($result, $cachedResult);
     }
 
     private function getTestRates()

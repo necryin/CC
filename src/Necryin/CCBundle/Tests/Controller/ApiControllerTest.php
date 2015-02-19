@@ -55,8 +55,7 @@ class ApiControllerTest extends WebTestCase
 
     public function testGetRates()
     {
-        $expects =
-            '{"base":"RUB","date":1424253606,"rates":{"RUB":1,"USD":30,"EUR":48}}';
+        $expects = '{"base":"RUB","date":1424253606,"rates":{"RUB":1,"USD":30,"EUR":48}}';
 
         $client = static::createClient();
         $crawler = $client->request('GET', '/stub/rates');
