@@ -164,6 +164,7 @@ class CurrencyConverterService
             return false;
         }
         $cacheKey = static::$cachePrefix . $providerString;
+
         return $this->cache->save($cacheKey, serialize($rates), $ttl);
     }
 

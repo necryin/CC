@@ -87,7 +87,7 @@ class ApiController extends Controller
     private function getExchangeProviderManager()
     {
         /** @var ExchangeProviderManager */
-        return  $this->get("necryin.exchange_provider_manager");
+        return $this->get("necryin.exchange_provider_manager");
     }
 
     /**

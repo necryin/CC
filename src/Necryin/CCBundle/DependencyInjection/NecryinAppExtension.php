@@ -26,6 +26,7 @@ class NecryinCCExtension extends Extension
 
     /**
      * Загружаем конфигурацию бандла
+     *
      * @param array            $configs
      * @param ContainerBuilder $container
      */

@@ -16,6 +16,7 @@ class ProviderCompilerPass implements CompilerPassInterface
 {
     /**
      * Сохраняем информацию о всех провайдерах курсов валют в менеджер провайдеров
+     *
      * @param ContainerBuilder $container DI контейнер
      */
     public function process(ContainerBuilder $container)
