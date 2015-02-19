@@ -87,15 +87,8 @@ class CurrencyConverterService
             throw new ConvertCurrencyServiceException('Invalid amount: ' . $amount);
         }
 
-        if(0 === $rates['rates'][$to])
-        {
-            $result = 0;
-        }
-        else
-        {
-            $amount = floatval($amount);
-            $result = $rates['rates'][$from] / $rates['rates'][$to] * $amount;
-        }
+        $amount = floatval($amount);
+        $result = $rates['rates'][$from] / $rates['rates'][$to] * $amount;
 
         return ['from' => $from, 'to' => $to, 'amount' => $amount, 'value' => $result];
     }
