@@ -1,3 +1,3 @@
-Currency Calculator
+Currency Converter
 ========================
 
