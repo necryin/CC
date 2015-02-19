@@ -10,6 +10,7 @@ use Necryin\CCBundle\Provider\ExchangeProviderInterface;
 
 /**
  * Интерфейс менеджера провайдеров курсов валют
+ *
  * Interface ExchangeProviderManagerInterface
  */
 interface ExchangeProviderManagerInterface

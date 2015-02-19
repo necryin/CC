@@ -47,6 +47,8 @@ class CurrencyConverterService
     }
 
     /**
+     * Конвертация валют
+     *
      * @param string $from          Из какой валюты конвертим
      * @param string $to            В какую валюту конвертим
      * @param float  $amount        Сумма изначальной валюты

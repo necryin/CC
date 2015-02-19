@@ -8,6 +8,7 @@ class ErrorHandler
 
     /**
      * Регистрируем ErrorHandler
+     *
      * @return static
      */
     public static function register()

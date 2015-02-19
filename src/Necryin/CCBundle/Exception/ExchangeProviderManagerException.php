@@ -8,6 +8,7 @@ namespace Necryin\CCBundle\Exception;
 
 /**
  * Исключение менеджера провайдеров курсов валют
+ *
  * Class ExchangeProviderManagerException
  */
 class ExchangeProviderManagerException extends \Exception

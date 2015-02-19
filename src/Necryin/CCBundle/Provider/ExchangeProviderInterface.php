@@ -7,6 +7,7 @@ namespace Necryin\CCBundle\Provider;
 
 /**
  * Интерфейс провайдера курсов валют
+ *
  * Interface ExchangeProviderInterface
  */
 interface ExchangeProviderInterface

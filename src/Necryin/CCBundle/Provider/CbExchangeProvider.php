@@ -12,6 +12,7 @@ use Guzzle\Common\Exception\RuntimeException;
 
 /**
  *  Предоставляет информацию о курсе валют по данным центробанка РФ
+ *
  *  Class CbExchangeProvider
  */
 class CbExchangeProvider implements ExchangeProviderInterface

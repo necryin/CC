@@ -9,6 +9,7 @@ use Guzzle\Service\ClientInterface;
 
 /**
  *  Тестовый провайдер
+ *
  *  Class CbExchangeProvider
  */
 class StubExchangeProvider implements ExchangeProviderInterface

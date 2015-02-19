@@ -10,6 +10,7 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 
 /**
  * Компилирует DI контейнер
+ *
  * Class ProviderCompilerPass
  */
 class ProviderCompilerPass implements CompilerPassInterface

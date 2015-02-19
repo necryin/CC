@@ -11,6 +11,7 @@ use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 
 /**
  * Слушатель событий ядра
+ *
  * Class KernelListener
  */
 class KernelListener

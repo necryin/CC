@@ -15,6 +15,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 /**
  * Контроллер API конвертера валют
+ *
  * Class ApiController
  */
 class ApiController extends Controller
@@ -46,6 +47,7 @@ class ApiController extends Controller
 
     /**
      * Получить курсы валют у провайдера по его псевдониму
+     *
      * @Route("/{provider}/rates.{_format}",
      *  defaults={"_format": "json", "providerAlias": "cb"},
      *  requirements={ "_format": "xml|json"}
@@ -66,6 +68,7 @@ class ApiController extends Controller
 
     /**
      * Получить массив псевдонимов всех провайдеров
+     *
      * @Route("/providers.{_format}",
      *  defaults={"_format": "json"},
      *  requirements={ "_format": "xml|json"}

@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Конвертер параметров для конвертера валют
+ *
  * Class CurrencyConverter
  */
 class CurrencyConverter implements ParamConverterInterface

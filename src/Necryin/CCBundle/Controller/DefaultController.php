@@ -11,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 /**
  * Основной контроллер приложения для веб форм
+ *
  * Class DefaultController
  */
 class DefaultController extends Controller
@@ -18,6 +19,7 @@ class DefaultController extends Controller
 
     /**
      * Отрисовка основной страницы приложения
+     *
      * @Route("/", name="homepage")
      * @Method({"GET"})
      */
