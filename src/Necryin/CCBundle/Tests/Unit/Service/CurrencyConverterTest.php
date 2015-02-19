@@ -20,20 +20,24 @@ use Doctrine\Common\Cache\Cache;
  */
 class CurrencyConverterTest extends \PHPUnit_Framework_TestCase
 {
-
-    public function testConvert()
+    /**
+     * @dataProvider getTestRates
+     */
+    public function testConvert($rates)
     {
-        $exchangeProviderManager = $this->getExchangeProviderManagerMock();
+        $exchangeProviderManager = $this->getExchangeProviderManagerMock($rates);
         $currencyConverter = new CurrencyConverterService($exchangeProviderManager, null);
         $result = $currencyConverter->convert('GBP', 'RUB', 2, 'cb');
         $this->assertEquals(['from' => 'GBP', 'to' => 'RUB', 'amount' => 2, 'value' => 192.9296], $result);
     }
 
-
-    public function testConvertFail()
+    /**
+     * @dataProvider getTestRates
+     */
+    public function testConvertFail($rates)
     {
         $this->setExpectedException(ConvertCurrencyServiceException::class);
-        $exchangeProviderManager = $this->getExchangeProviderManagerMock();
+        $exchangeProviderManager = $this->getExchangeProviderManagerMock($rates);
         $currencyConverter = new CurrencyConverterService($exchangeProviderManager, null);
         $currencyConverter->convert('GG', 'RUB', 2, 'cb');
     }
@@ -47,7 +51,8 @@ class CurrencyConverterTest extends \PHPUnit_Framework_TestCase
             ConvertCurrencyServiceException::class,
             'Provider doesn\'t provide ' . $from . ' rate'
         );
-        $exchangeProviderManager = $this->getExchangeProviderManagerMock();
+        $rates = $this->getTestRates()[0][0];
+        $exchangeProviderManager = $this->getExchangeProviderManagerMock($rates);
         $currencyConverter = new CurrencyConverterService($exchangeProviderManager, null);
         $currencyConverter->convert($from, 'RUB', 2, 'cb');
     }
@@ -61,7 +66,8 @@ class CurrencyConverterTest extends \PHPUnit_Framework_TestCase
             ConvertCurrencyServiceException::class,
             'Provider doesn\'t provide ' . $to . ' rate'
         );
-        $exchangeProviderManager = $this->getExchangeProviderManagerMock();
+        $rates = $this->getTestRates()[0][0];
+        $exchangeProviderManager = $this->getExchangeProviderManagerMock($rates);
         $currencyConverter = new CurrencyConverterService($exchangeProviderManager, null);
         $currencyConverter->convert('RUB', $to, 2, 'cb');
     }
@@ -75,7 +81,8 @@ class CurrencyConverterTest extends \PHPUnit_Framework_TestCase
             ConvertCurrencyServiceException::class,
             'Invalid amount: ' . $amount
         );
-        $exchangeProviderManager = $this->getExchangeProviderManagerMock();
+        $rates = $this->getTestRates()[0][0];
+        $exchangeProviderManager = $this->getExchangeProviderManagerMock($rates);
         $currencyConverter = new CurrencyConverterService($exchangeProviderManager, null);
         $currencyConverter->convert('RUB', 'AUD', $amount, 'cb');
     }
@@ -85,10 +92,12 @@ class CurrencyConverterTest extends \PHPUnit_Framework_TestCase
         return [['1,12'], ['sdfs'], [null], ['0,1'], [false]];
     }
 
-    public function testGetRates()
+    /**
+     * @dataProvider getTestRates
+     */
+    public function testGetRates($rates)
     {
-        $rates = $this->getTestRates();
-        $exchangeProviderManager = $this->getExchangeProviderManagerMock();
+        $exchangeProviderManager = $this->getExchangeProviderManagerMock($rates);
         $currencyConverter = new CurrencyConverterService($exchangeProviderManager, null);
         $result = $currencyConverter->getRates('cb');
         $this->assertEquals($rates, $result);
@@ -159,9 +168,9 @@ class CurrencyConverterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($result, $cachedResult);
     }
 
-    private function getTestRates()
+    public function getTestRates()
     {
-        $rates = [
+        $rates[] = [[
             'base'  => 'RUB',
             'date'  => 1424206800,
             'rates' => [
@@ -170,15 +179,13 @@ class CurrencyConverterTest extends \PHPUnit_Framework_TestCase
                 'AZN' => 80.0654,
                 'GBP' => 96.4648,
             ]
-        ];
+        ]];
 
         return $rates;
     }
 
-    private function getExchangeProviderManagerMock()
+    private function getExchangeProviderManagerMock($rates)
     {
-        $rates = $this->getTestRates();
-
         $exchangeProviderManager = $this->getMockBuilder(ExchangeProviderManagerInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
