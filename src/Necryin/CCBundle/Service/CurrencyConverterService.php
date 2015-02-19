@@ -33,10 +33,8 @@ class CurrencyConverterService
 
     /**
      * Префикс используемый в кеше
-     *
-     * @var string
      */
-    private static $cachePrefix = "necryin:cc:exchange_provider:";
+    const CACHE_PREFIX = "necryin:cc:exchange_provider:";
 
     /**
      * @param ExchangeProviderManagerInterface $exchangeProviderManager Поставщик провайдеров
@@ -46,16 +44,6 @@ class CurrencyConverterService
     {
         $this->exchangeProviderManager = $exchangeProviderManager;
         $this->cache = $cache;
-    }
-
-    /**
-     * Префикс используемый в кеше
-     *
-     * @return string
-     */
-    public static function getCachePrefix()
-    {
-        return static::$cachePrefix;
     }
 
     /**
@@ -132,7 +120,7 @@ class CurrencyConverterService
      */
     public function getCachedRates($providerString)
     {
-        $cacheKey = static::$cachePrefix . $providerString;
+        $cacheKey = static::CACHE_PREFIX . $providerString;
         if(null === $this->cache || !$cachedRates = $this->cache->fetch($cacheKey))
         {
             return null;
@@ -156,7 +144,7 @@ class CurrencyConverterService
         {
             return false;
         }
-        $cacheKey = static::$cachePrefix . $providerString;
+        $cacheKey = static::CACHE_PREFIX . $providerString;
 
         return $this->cache->save($cacheKey, serialize($rates), $ttl);
     }

@@ -157,7 +157,7 @@ class CurrencyConverterTest extends \PHPUnit_Framework_TestCase
 
         $cache->expects($this->any())
             ->method('fetch')
-            ->with(CurrencyConverterService::getCachePrefix() . 'cb')
+            ->with(CurrencyConverterService::CACHE_PREFIX . 'cb')
             ->will($this->returnValue(serialize($rates)));
 
         $currencyConverter = new CurrencyConverterService($exchangeProviderManager, $cache);
