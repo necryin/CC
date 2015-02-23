@@ -8,6 +8,7 @@ namespace Necryin\CCBundle\Tests\Unit\Service;
 
 use Necryin\CCBundle\Exception\ConvertCurrencyServiceException;
 use Necryin\CCBundle\Exception\ExchangeProviderManagerException;
+use Necryin\CCBundle\Exception\InvalidArgumentException;
 use Necryin\CCBundle\Manager\ExchangeProviderManager;
 use Necryin\CCBundle\Manager\ExchangeProviderManagerInterface;
 use Necryin\CCBundle\Provider\ExchangeProviderInterface;
@@ -114,58 +115,10 @@ class CurrencyConverterTest extends \PHPUnit_Framework_TestCase
         $exchangeProviderManager->expects($this->any())
             ->method('getProvider')
             ->with('sdfg')
-            ->willThrowException(new ExchangeProviderManagerException());
+            ->willThrowException(new InvalidArgumentException());
 
         $currencyConverter = new CurrencyConverterService($exchangeProviderManager, null);
         $currencyConverter->getRates('sdfg');
-    }
-
-    public function testGetRatesFromCache()
-    {
-        $rates = [
-            'base'  => 'RUB',
-            'timestamp'  => time() + 10,
-            'rates' => [
-                'RUB' => 1,
-                'AUD' => 48.9361,
-                'AZN' => 80.0654,
-                'GBP' => 96.4648,
-            ]
-        ];
-        $exchangeProviderManager = $this->getMockBuilder(ExchangeProviderManagerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $cbProvider = $this->getMockBuilder(ExchangeProviderInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $cbProvider->expects($this->any())
-            ->method('getRates')
-            ->will($this->returnValue($rates));
-
-        $cbProvider->expects($this->any())
-            ->method('getTtl')
-            ->will($this->returnValue(10));
-
-        $exchangeProviderManager->expects($this->any())
-            ->method('getProvider')
-            ->with('cb')
-            ->will($this->returnValue($cbProvider));
-
-        $cache = $this->getMock(Cache::class);
-
-        $cache->expects($this->any())
-            ->method('fetch')
-            ->with(CurrencyConverterService::CACHE_PREFIX . 'cb')
-            ->will($this->returnValue(serialize($rates)));
-
-        $currencyConverter = new CurrencyConverterService($exchangeProviderManager, $cache);
-
-        $result = $currencyConverter->getRates('cb');
-        $cachedResult = $currencyConverter->getCachedRates(CurrencyConverterService::CACHE_PREFIX . 'cb');
-
-        $this->assertEquals($result, $cachedResult);
     }
 
     public function getTestRates()

@@ -221,6 +221,10 @@ class CurrencyConverterService
      */
     public function getProviderCacheInvalidationTime($providerAlias)
     {
+        if(null === $this->cache)
+        {
+            return false;
+        }
         return $this->cache->fetch($this->getProviderCacheInvalidationTimeKey($providerAlias));
     }
 

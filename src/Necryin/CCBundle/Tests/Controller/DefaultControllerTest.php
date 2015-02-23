@@ -6,6 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
  * Тест работоспособности веб клиента
+ *
  * Class DefaultControllerTest
  */
 class DefaultControllerTest extends WebTestCase
@@ -13,9 +14,7 @@ class DefaultControllerTest extends WebTestCase
     public function testIndex()
     {
         $client = static::createClient();
-
-        $crawler = $client->request('GET', '/');
-
+        $client->request('GET', '/');
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
     }
 }

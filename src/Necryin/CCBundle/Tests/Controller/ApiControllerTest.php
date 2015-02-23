@@ -3,6 +3,7 @@
 namespace Necryin\CCBundle\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Bundle\FrameworkBundle\Client;
 
 /**
  * Тест Api контроллера
@@ -10,76 +11,91 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
  */
 class ApiControllerTest extends WebTestCase
 {
-    public function testConvert()
+
+    /**
+     * @var Client $client
+     */
+    private $client = null;
+
+    public function setUp()
     {
-        $expects = '{"from":"EUR","to":"RUB","amount":100,"value":4800}';
-
-        $client = static::createClient();
-        $crawler = $client->request('GET', '/currency?from=EUR&to=RUB&amount=100&provider=stub');
-        $response = $client->getResponse();
-
-        $this->assertEquals(200, $client->getResponse()->getStatusCode());
-        $this->assertJsonStringEqualsJsonString($expects, $response->getContent());
+        $this->client = static::createClient();
     }
 
-    public function testConvertInvalidParams()
+    public function tearDown()
     {
-        $client = static::createClient();
-        $crawler = $client->request('GET', '/currency?from=GG&to=RUB&amount=100&provider=stub');
-        $response = $client->getResponse();
-
-        $this->assertEquals(500, $client->getResponse()->getStatusCode());
-        $this->assertJsonStringEqualsJsonString(
-            '{"message":"Provider doesn\'t provide GG rate"}',
-            $response->getContent()
-        );
-
-        $crawler = $client->request('GET', '/currency?from=EUR&to=RUB&amount=100,1&provider=stub');
-        $response = $client->getResponse();
-
-        $this->assertEquals(500, $client->getResponse()->getStatusCode());
-        $this->assertJsonStringEqualsJsonString(
-            '{"message":"Invalid amount: 100,1"}',
-            $response->getContent()
-        );
-
-        $crawler = $client->request('GET', '/currency?from=EUR&to=RUB&amount=100&provider=stu');
-        $response = $client->getResponse();
-
-        $this->assertEquals(500, $client->getResponse()->getStatusCode());
-        $this->assertJsonStringEqualsJsonString(
-            '{"message":"Invalid provider name: stu"}',
-            $response->getContent()
-        );
+        $this->client = null;
     }
 
-    public function testGetRates()
+    /**
+     * @dataProvider provider
+     */
+    public function testConvert($url, array $params, array $expects)
     {
-        $expects = '{"base":"RUB","date":1424253606,"rates":{"RUB":1,"USD":30,"EUR":48}}';
+        $this->client->request('GET', $url . http_build_query($params));
 
-        $client = static::createClient();
-        $crawler = $client->request('GET', '/stub/rates');
-        $response = $client->getResponse();
-        $this->assertEquals(200, $client->getResponse()->getStatusCode());
-        $this->assertJsonStringEqualsJsonString($expects, $response->getContent());
+        $response = $this->client->getResponse();
+
+        if(isset($expects['exception']))
+        {
+            $this->assertEquals($expects['exception']['code'], $this->client->getResponse()->getStatusCode());
+            $this->assertJson($response->getContent());
+            $result = json_decode($response->getContent(), true);
+            $this->assertEquals($result['message'], $expects['exception']['message']);
+        }
+        else
+        {
+            $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
+            $this->assertJson($response->getContent());
+            $result = json_decode($response->getContent(), true);
+            if('/providers' === $url)
+            {
+                $this->assertContains($expects[0], $result);
+            }
+            else{
+                $this->assertEquals($result, $expects);
+            }
+        }
     }
 
-    public function testGetRatesInvalid()
+    public function provider()
     {
-        $client = static::createClient();
-        $crawler = $client->request('GET', '/sd/rates');
-        $response = $client->getResponse();
-        $this->assertEquals(500, $client->getResponse()->getStatusCode());
-        $this->assertJsonStringEqualsJsonString('{"message":"Invalid provider name: sd"}', $response->getContent());
-    }
-
-    public function testGetProviders()
-    {
-        $client = static::createClient();
-        $crawler = $client->request('GET', '/providers');
-        $response = $client->getResponse();
-        $this->assertEquals(200, $client->getResponse()->getStatusCode());
-        $res = json_decode($response->getContent());
-        $this->assertContains('stub', $res);
+        return [
+            [
+                '/convert/currency?',
+                ['from' => 'EUR', 'to' => 'RUB', 'amount' => 100, 'provider' => 'stub'],
+                ['from' => 'EUR', 'to' => 'RUB', 'amount' => 100, 'value' => 4800],
+            ],
+            [
+                '/convert/currency?',
+                ['from' => 'GG', 'to' => 'RUB', 'amount' => 100, 'provider' => 'stub'],
+                ['exception' => ['message' => 'Unknown currency code GG', 'code' => 400] ],
+            ],
+            [
+                '/convert/currency?',
+                ['from' => 'EUR', 'to' => 'RUB', 'amount' => '100,1', 'provider' => 'stub'],
+                ['exception' => ['message' => 'Invalid amount', 'code' => 400] ],
+            ],
+            [
+               '/convert/currency?',
+                ['from' => 'EUR', 'to' => 'RUB', 'amount' => '100', 'provider' => 'stb'],
+                ['exception' => ['message' => 'Invalid provider name', 'code' => 400] ],
+            ],
+            [
+                '/stub/rates',
+                [],
+                ['base' => 'RUB', 'date' => 1424253606, 'rates' => ["RUB" => 1,"USD" => 30,"EUR" => 48]],
+            ],
+            [
+                '/sd/rates',
+                [],
+                ['exception' => ['message' => 'Invalid provider name', 'code' => 400] ],
+            ],
+            [
+                '/providers',
+                [],
+                ['stub'],
+            ],
+        ];
     }
 }

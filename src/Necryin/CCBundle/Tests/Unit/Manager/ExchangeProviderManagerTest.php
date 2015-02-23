@@ -7,6 +7,7 @@
 namespace Necryin\CCBundle\Tests\Unit\Provider;
 
 use Necryin\CCBundle\Exception\ExchangeProviderManagerException;
+use Necryin\CCBundle\Exception\InvalidArgumentException;
 use Necryin\CCBundle\Manager\ExchangeProviderManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -48,7 +49,7 @@ class ExchangeProviderManagerTest extends \PHPUnit_Framework_TestCase
 
     public function testManagerFail()
     {
-        $this->setExpectedException(ExchangeProviderManagerException::class);
+        $this->setExpectedException(InvalidArgumentException::class);
         $container = $this->getMockBuilder(ContainerInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
