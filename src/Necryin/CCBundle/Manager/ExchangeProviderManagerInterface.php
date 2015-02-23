@@ -6,6 +6,7 @@
 namespace Necryin\CCBundle\Manager;
 
 use Necryin\CCBundle\Exception\ExchangeProviderManagerException;
+use Necryin\CCBundle\Exception\InvalidArgumentException;
 use Necryin\CCBundle\Provider\ExchangeProviderInterface;
 
 /**
@@ -30,7 +31,8 @@ interface ExchangeProviderManagerInterface
      * @param string $alias Псевдоним провайдера
      *
      * @return ExchangeProviderInterface
-     * @throws ExchangeProviderManagerException
+     *
+     * @throws InvalidArgumentException
      */
     public function getProvider($alias);
 

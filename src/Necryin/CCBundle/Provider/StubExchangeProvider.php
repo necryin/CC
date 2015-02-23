@@ -35,6 +35,7 @@ class StubExchangeProvider implements ExchangeProviderInterface
 
     /**
      * Курсы по умолчанию
+     *
      * @var array
      */
     private $defaultRates = [

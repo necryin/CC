@@ -17,10 +17,6 @@ services:
         class: Necryin\CCBundle\Manager\ExchangeProviderManager
         arguments: [@service_container]
 
-    necryin.currency_manager:
-        class: Necryin\CCBundle\Manager\CurrencyManager
-        arguments: [@cache]
-
     necryin_cc.cb_exchange_provider:
         class: Necryin\CCBundle\Provider\CbExchangeProvider
         arguments: [@guzzle.client]
@@ -35,4 +31,4 @@ services:
 
     necryin.currency_converter_service:
         class: Necryin\CCBundle\Service\CurrencyConverterService
-        arguments: [@necryin.exchange_provider_manager, @necryin.currency_manager, @?cache]
+        arguments: [@necryin.exchange_provider_manager, @?cache]

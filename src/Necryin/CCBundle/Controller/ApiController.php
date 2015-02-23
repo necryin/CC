@@ -22,7 +22,7 @@ class ApiController extends Controller
     /**
      * Пример запроса к апи /currency?from=DKK&to=EUR&amount=100&provider=openexchange
      *
-     * @Route("/currency.{_format}",
+     * @Route("/convert/currency.{_format}",
      *  defaults={"_format": "json"},
      *  requirements={ "_format": "json"}
      * )
@@ -55,9 +55,18 @@ class ApiController extends Controller
      *
      * @param string $provider Псевдоним провайдера в системе
      *
-     * @return array массив курсов валют
+     * @return array массив курсов валют вида
+     * [
+     *  'base' = > 'RUB',
+     *  'timestamp' => 1424699899,
+     *  'rates' =>
+     *  [
+     *    'RUB' => 1,
+     *    'USD' => 30,
+     *     ...
+     *  ]
+     * ]
      */
-
     public function getRatesAction($provider)
     {
         return $this->getCurrencyConverterService()->getRates($provider);

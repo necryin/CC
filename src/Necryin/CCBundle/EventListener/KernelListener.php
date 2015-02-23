@@ -5,9 +5,11 @@
  */
 namespace Necryin\CCBundle\EventListener;
 
+use Necryin\CCBundle\Exception\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
  * Слушатель событий ядра
@@ -38,9 +40,27 @@ class KernelListener
     {
         $headers = [];
 
-        $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
+        $message = 'Internal Server Error.';
 
-        $message = $e->getMessage();
+        if($e instanceof HttpException)
+        {
+            $headers = $e->getHeaders();
+            $statusCode = $e->getStatusCode();
+
+            if(isset(Response::$statusTexts[$statusCode]))
+            {
+                $message = Response::$statusTexts[$statusCode];
+            }
+        }
+        else if($e instanceof InvalidArgumentException)
+        {
+            $statusCode = Response::HTTP_BAD_REQUEST;
+            $message = $e->getMessage();
+        }
+        else
+        {
+            $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
+        }
 
         $result = new JsonResponse(['message' => $message], $statusCode, $headers);
         $result->setEncodingOptions(false);

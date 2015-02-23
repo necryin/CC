@@ -72,23 +72,23 @@ class OpenexchangeExchangeProvider implements ExchangeProviderInterface
         }
         catch(RequestException $reqe)
         {
-            throw new ExchangeProviderException('RequestException: ' . $reqe->getMessage());
+            throw new ExchangeProviderException($reqe->getMessage());
         }
         catch(RuntimeException $rune)
         {
-            throw new ExchangeProviderException('RuntimeException: ' . $rune->getMessage());
+            throw new ExchangeProviderException($rune->getMessage());
         }
 
         foreach($this->required as $require)
         {
             if(empty($parsedResponse[$require]))
             {
-                throw new ExchangeProviderException("Invalid response param: $require");
+                throw new ExchangeProviderException("Invalid response param {$require}");
             }
         }
 
         $result = [];
-        $result['timestamp'] = (string) $parsedResponse['timestamp'];
+        $result['timestamp'] = (int) $parsedResponse['timestamp'];
         $result['base'] = (string) $parsedResponse['base'];
 
         foreach($parsedResponse['rates'] as $code => $value)

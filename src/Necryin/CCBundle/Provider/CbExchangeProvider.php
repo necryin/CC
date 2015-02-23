@@ -72,15 +72,21 @@ class CbExchangeProvider implements ExchangeProviderInterface
         }
         catch(RequestException $reqe)
         {
-            throw new ExchangeProviderException('RequestException: ' . $reqe->getMessage());
+            throw new ExchangeProviderException($reqe->getMessage());
         }
         catch(RuntimeException $rune)
         {
-            throw new ExchangeProviderException('RuntimeException: ' . $rune->getMessage());
+            throw new ExchangeProviderException($rune->getMessage());
         }
-        if(empty($parsedResponse->attributes()->Date) || empty($parsedResponse->Valute))
+
+        if(empty($parsedResponse->attributes()->Date))
         {
-            throw new ExchangeProviderException('Invalid response params');
+            throw new ExchangeProviderException('Invalid response param Date');
+        }
+
+        if(empty($parsedResponse->Valute))
+        {
+            throw new ExchangeProviderException('Invalid response param Valute');
         }
 
         $result = [];
@@ -97,7 +103,7 @@ class CbExchangeProvider implements ExchangeProviderInterface
             $date = new \DateTime(date('d.m.Y'));
         }
 
-        $result['timestamp'] = $date->format('U');
+        $result['timestamp'] = (int) $date->format('U');
 
         /** добавляем курс базовой валюты в курсы */
         $result['rates'][$result['base']] = 1;

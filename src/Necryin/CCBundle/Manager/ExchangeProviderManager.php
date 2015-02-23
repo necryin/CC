@@ -6,6 +6,7 @@
 namespace Necryin\CCBundle\Manager;
 
 use Necryin\CCBundle\Exception\ExchangeProviderManagerException;
+use Necryin\CCBundle\Exception\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -35,7 +36,7 @@ class ExchangeProviderManager implements ExchangeProviderManagerInterface
     {
         if(!$this->container->has($providerServiceId))
         {
-            throw new ExchangeProviderManagerException("Container doesn't have provider service: $providerServiceId");
+            throw new InvalidArgumentException("Container doesn't have provider service {$providerServiceId}");
         }
         $this->providers[$alias] = $providerServiceId;
     }
@@ -43,9 +44,9 @@ class ExchangeProviderManager implements ExchangeProviderManagerInterface
     /** {@inheritdoc} */
     public function getProvider($alias)
     {
-        if(empty($this->providers[$alias]))
+        if(!is_scalar($alias) || empty($this->providers[$alias]))
         {
-            throw new ExchangeProviderManagerException("Invalid provider name: $alias");
+            throw new InvalidArgumentException('Invalid provider name');
         }
 
         return $this->container->get($this->providers[$alias]);

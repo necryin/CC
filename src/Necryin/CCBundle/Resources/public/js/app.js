@@ -43,7 +43,7 @@ angular.module('cc', [])
                     provider: $scope.currentProvider
                 };
                 console.log(params);
-                $http.get('/currency', {
+                $http.get('/convert/currency', {
                     params: params
                 }).
                     success(function (data, status, headers, config) {
