@@ -1123,7 +1123,7 @@ class Currency
     private $currencyCode;
 
     /**
-     * @param string $currencyCode числовой или буквенный код валюты
+     * @param int|string $currencyCode числовой или буквенный код валюты
      *
      * @throws InvalidArgumentException
      */
