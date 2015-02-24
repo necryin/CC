@@ -17,6 +17,7 @@
 
     <php>
         <server name="KERNEL_DIR" value="app/" />
+        <ini name="date.timezone" value="UTC" />
     </php>
 
     <filter>
