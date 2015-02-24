@@ -98,7 +98,7 @@ class CbExchangeProvider implements ExchangeProviderInterface
         {
             $date = new \DateTime($date);
         }
-        catch (\Exception $e)
+        catch(\Exception $e)
         {
             $date = new \DateTime(date('d.m.Y'));
         }

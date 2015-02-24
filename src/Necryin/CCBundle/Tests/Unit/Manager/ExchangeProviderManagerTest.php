@@ -6,7 +6,6 @@
 
 namespace Necryin\CCBundle\Tests\Unit\Provider;
 
-use Necryin\CCBundle\Exception\ExchangeProviderManagerException;
 use Necryin\CCBundle\Exception\InvalidArgumentException;
 use Necryin\CCBundle\Manager\ExchangeProviderManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -18,6 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class ExchangeProviderManagerTest extends \PHPUnit_Framework_TestCase
 {
+
     public function testManager()
     {
         $providers = ['cb', 'openexchange'];
@@ -47,14 +47,51 @@ class ExchangeProviderManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('1', $exchangeProviderManager->getProvider('cb'));
     }
 
-    public function testManagerFail()
+    /**
+     * @dataProvider providerFailGet
+     */
+    public function testManagerFailGet($exchangeProvider)
     {
-        $this->setExpectedException(InvalidArgumentException::class);
+        $this->setExpectedException(InvalidArgumentException::class,
+            'Invalid exchange provider name');
+
         $container = $this->getMockBuilder(ContainerInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
         $exchangeProviderManager = new ExchangeProviderManager($container);
-        $exchangeProviderManager->getProvider('df');
+        $exchangeProviderManager->getProvider($exchangeProvider);
+    }
+
+    /**
+     * @dataProvider providerFailAdd
+     */
+    public function testManagerFailAdd($exchangeProvider)
+    {
+        $this->setExpectedException(InvalidArgumentException::class,
+            "Container doesn't have provider service {$exchangeProvider}");
+
+        $container = $this->getMockBuilder(ContainerInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $exchangeProviderManager = new ExchangeProviderManager($container);
+        $exchangeProviderManager->addProvider($exchangeProvider, $exchangeProvider);
+    }
+
+    public function providerFailGet()
+    {
+        return [
+          ['df'],
+          [[1]]
+        ];
+    }
+
+    public function providerFailAdd()
+    {
+        return [
+            ['dd'],
+            [null]
+        ];
     }
 }

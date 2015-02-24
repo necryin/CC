@@ -49,8 +49,10 @@ class CurrencyConverterService
      * @param ExchangeProviderManagerInterface $exchangeProviderManager Поставщик провайдеров
      * @param null|Cache                       $cache                   Кэш
      */
-    public function __construct(ExchangeProviderManagerInterface $exchangeProviderManager,
-                                Cache $cache = null)
+    public function __construct(
+        ExchangeProviderManagerInterface $exchangeProviderManager,
+        Cache $cache = null
+    )
     {
         $this->exchangeProviderManager = $exchangeProviderManager;
         $this->cache = $cache;
@@ -74,7 +76,7 @@ class CurrencyConverterService
         $rates = $this->getRates($providerAlias);
 
         $fromCurrency = new Currency($from);
-        $toCurrency   = new Currency($to);
+        $toCurrency = new Currency($to);
 
         if(!isset($rates['rates'][$fromCurrency->getCurrencyCode()]))
         {
@@ -88,7 +90,7 @@ class CurrencyConverterService
 
         if(0 === $rates['rates'][$toCurrency->getCurrencyCode()])
         {
-            throw new ConvertCurrencyServiceException("Zero rate");
+            throw new ConvertCurrencyServiceException('Zero rate');
         }
 
         if(!is_numeric($amount))
@@ -97,7 +99,8 @@ class CurrencyConverterService
         }
 
         $amount = floatval($amount);
-        $result = $rates['rates'][$fromCurrency->getCurrencyCode()] / $rates['rates'][$toCurrency->getCurrencyCode()] * $amount;
+        $result = $rates['rates'][$fromCurrency->getCurrencyCode()] / $rates['rates'][$toCurrency->getCurrencyCode()] *
+                  $amount;
 
         return ['from' => $from, 'to' => $to, 'amount' => $amount, 'value' => $result];
     }
@@ -131,7 +134,7 @@ class CurrencyConverterService
             {
                 if(false === $rates)
                 {
-                    throw new ConvertCurrencyServiceException("Cannot provide rates");
+                    throw new ConvertCurrencyServiceException('Cannot provide rates');
                 }
             }
 
@@ -159,7 +162,7 @@ class CurrencyConverterService
      *
      * @return array|false
      */
-    public function getCachedRates($cacheKey)
+    private function getCachedRates($cacheKey)
     {
 
         if(null === $this->cache || !($cachedRates = $this->cache->fetch($cacheKey)))
@@ -185,6 +188,7 @@ class CurrencyConverterService
         {
             return false;
         }
+
         return $this->cache->save($cacheKey, $rates, $ttl);
     }
 
@@ -225,6 +229,7 @@ class CurrencyConverterService
         {
             return false;
         }
+
         return $this->cache->fetch($this->getProviderCacheInvalidationTimeKey($providerAlias));
     }
 
@@ -242,6 +247,7 @@ class CurrencyConverterService
         {
             return false;
         }
+
         return $this->cache->save($this->getProviderCacheInvalidationTimeKey($providerAlias), $timestamp, 0);
     }
 }

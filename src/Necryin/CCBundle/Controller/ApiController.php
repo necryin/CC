@@ -30,10 +30,10 @@ class ApiController extends Controller
      * @ParamConverter(converter="currency_converter")
      * @Rest\View
      *
-     * @param string $from          Из какой валюты конвертим
-     * @param string $to            В какую валюту конвертим
-     * @param float  $amount        Сумма изначальной валюты
-     * @param string $provider      Псевдоним провайдера курсов валют
+     * @param string $from     Из какой валюты конвертим
+     * @param string $to       В какую валюту конвертим
+     * @param float  $amount   Сумма изначальной валюты
+     * @param string $provider Псевдоним провайдера курсов валют
      *
      * @return array ['from' => $from, 'to' => $to, 'amount' => $amount, 'value' => результат вычислений]
      */

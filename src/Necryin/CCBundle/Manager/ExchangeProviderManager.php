@@ -46,7 +46,7 @@ class ExchangeProviderManager implements ExchangeProviderManagerInterface
     {
         if(!is_scalar($alias) || empty($this->providers[$alias]))
         {
-            throw new InvalidArgumentException('Invalid provider name');
+            throw new InvalidArgumentException('Invalid exchange provider name');
         }
 
         return $this->container->get($this->providers[$alias]);

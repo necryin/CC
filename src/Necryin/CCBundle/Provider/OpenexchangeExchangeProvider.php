@@ -36,7 +36,7 @@ class OpenexchangeExchangeProvider implements ExchangeProviderInterface
      *
      * @var int
      */
-      const TTL = 3600;
+    const TTL = 3600;
 
     /**
      * Обязательные поля валидного json для провайдера

@@ -41,85 +41,65 @@ class CbExchangeProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(3600, $cbExchangeProvider->getTtl());
     }
 
-    public function testGetRates()
+    public function getTestRates()
     {
-        $rates = [
-            'base'  => 'RUB',
-            'timestamp'  => '1424217600',
-            'rates' => [
+        return [
+            'base'      => 'RUB',
+            'timestamp' => 1424217600,
+            'rates'     => [
                 'RUB' => 1,
                 'AUD' => 48.9361,
                 'AZN' => 80.0654,
                 'GBP' => 96.4648,
             ]
         ];
-
-        $xml =
-            new \SimpleXMLElement(file_get_contents(__DIR__ . '/../Fixtures/cbRates.xml') ?: '<root />', LIBXML_NONET);
-        $response = $this->getMockBuilder(Response::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client = $this->getMockBuilder(Client::class)
-            ->setMethods(['send', 'xml'])
-            ->getMock();
-
-        $client->expects($this->once())
-            ->method('send')
-            ->will($this->returnValue($response));
-
-        $response->expects($this->once())
-            ->method('xml')
-            ->will($this->returnValue($xml));
-
-        $cbExchangeProvider = new CbExchangeProvider($client);
-
-        $this->assertEquals($rates, $cbExchangeProvider->getRates());
     }
 
-    public function testGetRatesInvalidDate()
+    public function providerXmlPath()
     {
-        $rates = [
-            'base'  => 'RUB',
-            'timestamp'  => (new \DateTime(date('d.m.Y')))->format('U'),
-            'rates' => [
-                'RUB' => 1,
-                'AUD' => 48.9361,
-                'AZN' => 80.0654,
-                'GBP' => 96.4648,
-            ]
+        return [
+            [
+                __DIR__ . '/../Fixtures/cbRates.xml',
+                $this->getTestRates()
+            ],
+            [
+                __DIR__ . '/../Fixtures/cbRatesInvalid.xml',
+                [
+                    'exception' => [
+                        'class'   => ExchangeProviderException::class,
+                        'message' => 'Invalid response param Date'
+                    ]
+                ]
+            ],
+            [
+                __DIR__ . '/../Fixtures/cbRatesInvalidDate.xml',
+                [
+                    'base'      => 'RUB',
+                    'timestamp' => (new \DateTime(date('d.m.Y')))->format('U'),
+                    'rates'     => [
+                        'RUB' => 1,
+                        'AUD' => 48.9361,
+                        'AZN' => 80.0654,
+                        'GBP' => 96.4648,
+                    ]
+                ]
+            ],
+            [
+                __DIR__ . '/../Fixtures/cbRatesInvalidValute.xml',
+                [
+                    'exception' => [
+                        'class'   => ExchangeProviderException::class,
+                        'message' => 'Invalid response param Valute'
+                    ]
+                ]
+            ],
         ];
-
-        $xml =
-            new \SimpleXMLElement(file_get_contents(__DIR__ . '/../Fixtures/cbRatesInvalidDate.xml') ?: '<root />', LIBXML_NONET);
-        $response = $this->getMockBuilder(Response::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $client = $this->getMockBuilder(Client::class)
-            ->setMethods(['send', 'xml'])
-            ->getMock();
-
-        $client->expects($this->once())
-            ->method('send')
-            ->will($this->returnValue($response));
-
-        $response->expects($this->once())
-            ->method('xml')
-            ->will($this->returnValue($xml));
-
-        $cbExchangeProvider = new CbExchangeProvider($client);
-
-        $this->assertEquals($rates, $cbExchangeProvider->getRates());
     }
 
-    public function testGetRatesInvalid()
+    public function getClient($xmlPath)
     {
-        $this->setExpectedException(ExchangeProviderException::class);
-
-        $xml = new \SimpleXMLElement(
-            file_get_contents(__DIR__ . '/../Fixtures/cbRatesInvalid.xml') ?: '<root />', LIBXML_NONET
-        );
+        $xml =
+            new \SimpleXMLElement(file_get_contents($xmlPath) ?: '<root />', LIBXML_NONET);
         $response = $this->getMockBuilder(Response::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -135,9 +115,26 @@ class CbExchangeProviderTest extends \PHPUnit_Framework_TestCase
         $response->expects($this->once())
             ->method('xml')
             ->will($this->returnValue($xml));
+        return $client;
+    }
 
-        $cbExchangeProvider = new CbExchangeProvider($client);
-        $cbExchangeProvider->getRates();
+    /**
+     * @dataProvider providerXmlPath
+     */
+    public function testGetRates($xmlPath, $expects)
+    {
+        $cbExchangeProvider = new CbExchangeProvider($this->getClient($xmlPath));
+        if (isset($expects['exception']))
+        {
+            $this->setExpectedException($expects['exception']['class'],
+                $expects['exception']['message']);
+        }
+        $rates = $cbExchangeProvider->getRates();
+
+        if (!isset($expects['exception']))
+        {
+            $this->assertEquals($expects, $rates);
+        }
     }
 
     public function testGetRatesRequestException()
