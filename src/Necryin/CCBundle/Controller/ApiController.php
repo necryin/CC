@@ -20,7 +20,7 @@ class ApiController extends Controller
 {
 
     /**
-     * Пример запроса к апи /currency?from=DKK&to=EUR&amount=100&provider=openexchange
+     * Пример запроса к апи convert/currency?from=DKK&to=EUR&amount=100&provider=openexchange
      *
      * @Route("/convert/currency.{_format}",
      *  defaults={"_format": "json"},
