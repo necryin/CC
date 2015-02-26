@@ -13,8 +13,6 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
  * Слушатель событий ядра
- *
- * Class KernelListener
  */
 class KernelListener
 {

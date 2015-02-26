@@ -10,8 +10,6 @@ use Necryin\CCBundle\Exception\InvalidArgumentException;
 
 /**
  * Класс валют по ISO 4217
- *
- * Class Currency
  */
 class Currency
 {

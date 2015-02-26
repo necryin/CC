@@ -3,9 +3,10 @@
  * User: human
  * Date: 18.02.15
  */
-namespace Necryin\CCBundle\Provider;
+namespace Necryin\CCBundle\Tests\Provider;
 
 use Guzzle\Service\ClientInterface;
+use Necryin\CCBundle\Provider\ExchangeProviderInterface;
 
 /**
  *  Тестовый провайдер

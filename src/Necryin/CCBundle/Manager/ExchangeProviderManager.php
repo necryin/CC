@@ -11,8 +11,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Менеджер курсов валют
- *
- * Class ExchangeProviderManager
  */
 class ExchangeProviderManager implements ExchangeProviderManagerInterface
 {

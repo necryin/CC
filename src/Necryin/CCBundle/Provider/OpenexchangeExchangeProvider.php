@@ -12,8 +12,6 @@ use Guzzle\Common\Exception\RuntimeException;
 
 /**
  * Предоставляет информацию о курсе валют по данным https://openexchangerates.org/
- *
- * Class OpenexchangeExchangeProvider
  */
 class OpenexchangeExchangeProvider implements ExchangeProviderInterface
 {

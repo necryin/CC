@@ -8,8 +8,6 @@ namespace Necryin\CCBundle\Exception;
 
 /**
  * Исключение провайдера курсов валют
- *
- * Class ExchangeProviderFactoryException
  */
 class ExchangeProviderException extends \Exception
 {

@@ -8,8 +8,6 @@ namespace Necryin\CCBundle\Exception;
 
 /**
  * Исключение конвертера валют
- *
- * Class ConvertCurrencyServiceException
  */
 class ConvertCurrencyServiceException extends \Exception
 {

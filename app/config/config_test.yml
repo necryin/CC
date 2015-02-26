@@ -1,6 +1,6 @@
 imports:
     - { resource: config_dev.yml }
-    - { resource: "@NecryinCCBundle/Resources/config/services_test.yml" }
+    - { resource: "@NecryinCCBundle/Tests/config/services_test.yml" }
 
 framework:
     test: ~

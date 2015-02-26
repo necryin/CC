@@ -1,6 +1,6 @@
 services:
     necryin_cc.stub_exchange_provider:
-        class: Necryin\CCBundle\Provider\StubExchangeProvider
+        class: Necryin\CCBundle\Tests\Provider\StubExchangeProvider
         arguments: [@guzzle.client]
         tags:
             - { name: necryin.exchange_provider, alias: 'stub' }
