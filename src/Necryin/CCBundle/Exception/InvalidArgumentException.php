@@ -7,7 +7,7 @@ namespace Necryin\CCBundle\Exception;
 /**
  * Исключение невалидного параметра
  */
-class InvalidArgumentException extends NecryinCurrencyConverter
+class InvalidArgumentException extends NecryinCurrencyConverterException
 {
 
 }
