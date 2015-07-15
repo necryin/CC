@@ -1,71 +1,48 @@
 <?php
 /**
- * User: human
- * Date: 13.02.15
+ * @author Kirilenko Georgii
  */
 namespace Necryin\CCBundle\Provider;
 
 use Guzzle\Http\Exception\RequestException;
-use Guzzle\Service\ClientInterface;
 use Necryin\CCBundle\Exception\ExchangeProviderException;
 use Guzzle\Common\Exception\RuntimeException;
 
 /**
  * Предоставляет информацию о курсе валют по данным https://openexchangerates.org/
  */
-class OpenexchangeExchangeProvider implements ExchangeProviderInterface
+class OpenexchangeExchangeProvider  extends AbstractExchangeProvider
 {
-    /**
-     * Guzzle клиент
-     *
-     * @var ClientInterface
-     */
-    private $client;
 
     /**
-     * Url api провайдера
-     *
-     * @var string
+     * @const SOURCE Url api провайдера
      */
-    private $source = "https://openexchangerates.org/api/latest.json?app_id=";
+    const SOURCE = "https://openexchangerates.org/api/latest.json?app_id=";
 
     /**
-     * Период обновления курсов в секундах
-     *
-     * @var int
+     * @var string ключ доступа к API openexchangerates.org
      */
-    const TTL = 3600;
+    private $appId;
 
     /**
-     * Обязательные поля валидного json для провайдера
-     *
-     * @var array
+     * @var array Обязательные поля валидного json для провайдера
      */
-    private $required = ['timestamp', 'base', 'rates'];
+    private static $required = ['timestamp', 'base', 'rates'];
 
     /**
-     * @param ClientInterface $client Guzzle клиент
-     * @param string          $appId  ключ доступа к API
+     * @param string $appId ключ доступа к API openexchangerates.org
      */
-    public function __construct(ClientInterface $client, $appId)
+    public function setAppId($appId)
     {
-        $this->client = $client;
         $this->appId = $appId;
-    }
-
-    /** {@inheritdoc} */
-    public function getTtl()
-    {
-        return self::TTL;
     }
 
     /** {@inheritdoc} */
     public function getRates()
     {
-        $url = $this->source . $this->appId;
         try
         {
-            $response = $this->client->get($url)->send();
+            $response = $this->client->get(self::SOURCE . $this->appId)->send();
             $parsedResponse = $response->json();
         }
         catch(RequestException $reqe)
@@ -77,7 +54,7 @@ class OpenexchangeExchangeProvider implements ExchangeProviderInterface
             throw new ExchangeProviderException($rune->getMessage());
         }
 
-        foreach($this->required as $require)
+        foreach(self::$required as $require)
         {
             if(empty($parsedResponse[$require]))
             {

@@ -1,7 +1,6 @@
 <?php
 /**
- * User: human
- * Date: 16.02.15
+ * @author Kirilenko Georgii
  */
 namespace Necryin\CCBundle\Service;
 
@@ -9,7 +8,6 @@ use Doctrine\Common\Cache\Cache;
 use Necryin\CCBundle\Exception\ConvertCurrencyServiceException;
 use Necryin\CCBundle\Exception\InvalidArgumentException;
 use Necryin\CCBundle\Manager\ExchangeProviderManager;
-use Necryin\CCBundle\Manager\ExchangeProviderManagerInterface;
 use Necryin\CCBundle\Object\Currency;
 
 /**
@@ -21,38 +19,25 @@ class CurrencyConverterService
 {
 
     /**
-     * Поставщик провайдеров
-     *
-     * @var ExchangeProviderManager
+     * @const TTL Период запрашивания свежих курсов
+     */
+    const TTL = 3600;
+
+    /**
+     * @var ExchangeProviderManager  Поставщик провайдеров
      */
     private $exchangeProviderManager;
 
     /**
-     * Кэш
-     *
-     * @var null|Cache
+     * @var Cache Кэш
      */
     private $cache;
 
     /**
-     * Префикс используемый в кеше
+     * @param ExchangeProviderManager $exchangeProviderManager Поставщик провайдеров
+     * @param Cache                   $cache                   Кэш
      */
-    const CACHE_PREFIX = "necryin:cc:exchange_provider:";
-
-    /**
-     * Постфикс времени протухания кэша
-     */
-    const CACHE_INVALIDATION_POSTFIX = ":timestamp";
-
-
-    /**
-     * @param ExchangeProviderManagerInterface $exchangeProviderManager Поставщик провайдеров
-     * @param null|Cache                       $cache                   Кэш
-     */
-    public function __construct(
-        ExchangeProviderManagerInterface $exchangeProviderManager,
-        Cache $cache = null
-    )
+    public function __construct(ExchangeProviderManager $exchangeProviderManager, Cache $cache)
     {
         $this->exchangeProviderManager = $exchangeProviderManager;
         $this->cache = $cache;
@@ -73,6 +58,11 @@ class CurrencyConverterService
      */
     public function convert($from, $to, $amount, $providerAlias)
     {
+        if(!is_numeric($amount))
+        {
+            throw new InvalidArgumentException('Invalid amount');
+        }
+
         $rates = $this->getRates($providerAlias);
 
         $fromCurrency = new Currency($from);
@@ -93,11 +83,6 @@ class CurrencyConverterService
             throw new ConvertCurrencyServiceException('Zero rate');
         }
 
-        if(!is_numeric($amount))
-        {
-            throw new InvalidArgumentException('Invalid amount');
-        }
-
         $amount = floatval($amount);
         $result = $rates['rates'][$fromCurrency->getCurrencyCode()] / $rates['rates'][$toCurrency->getCurrencyCode()] *
                   $amount;
@@ -111,28 +96,27 @@ class CurrencyConverterService
      * @param string $providerAlias псевдоним провайдера
      *
      * @return array курсы валют
+     *
      * @throws ConvertCurrencyServiceException
      */
     public function getRates($providerAlias)
     {
         $provider = $this->exchangeProviderManager->getProvider($providerAlias);
 
-        $cacheKey = $this->getProviderCacheKey($providerAlias);
+        $rates = $this->cache->fetch($providerAlias);
+        $isFresh = $this->cache->fetch($providerAlias . ":timeout");
 
-        $rates = $this->getCachedRates($cacheKey);
-
-        if(!$this->isValidProviderCachedRates($providerAlias) || false === $rates)
+        if(!$isFresh || !$rates)
         {
             try
             {
                 $rates = $provider->getRates();
-                $cacheInvalidationTime = time() + $provider->getTtl();
-                $this->setProviderCacheInvalidationTime($cacheInvalidationTime, $providerAlias);
-                $this->cacheRates($cacheKey, $rates, 0);
+                $this->cache->save($providerAlias, $rates, 0);
+                $this->cache->save($providerAlias . ":timeout", true, self::TTL);
             }
             catch(\Exception $e)
             {
-                if(false === $rates)
+                if(!$rates)
                 {
                     throw new ConvertCurrencyServiceException('Cannot provide rates');
                 }
@@ -143,111 +127,4 @@ class CurrencyConverterService
         return $rates;
     }
 
-    /**
-     * Валидны ли курсы из кэша
-     *
-     * @param string $providerAlias псевдоним провайдера
-     *
-     * @return bool
-     */
-    private function isValidProviderCachedRates($providerAlias)
-    {
-        return time() < $this->getProviderCacheInvalidationTime($providerAlias);
-    }
-
-    /**
-     * Пробуем взять курсы из кеша
-     *
-     * @param string $cacheKey кеш ключ провайдера
-     *
-     * @return array|false
-     */
-    private function getCachedRates($cacheKey)
-    {
-
-        if(null === $this->cache || !($cachedRates = $this->cache->fetch($cacheKey)))
-        {
-            return false;
-        }
-
-        return $cachedRates;
-    }
-
-    /**
-     * Пробуем закешировать результат
-     *
-     * @param string $cacheKey кеш ключ провайдера
-     * @param int    $ttl      время кеширования в секундах
-     * @param array  $rates    массив курсов
-     *
-     * @return bool
-     */
-    private function cacheRates($cacheKey, array $rates, $ttl)
-    {
-        if(null === $this->cache)
-        {
-            return false;
-        }
-
-        return $this->cache->save($cacheKey, $rates, $ttl);
-    }
-
-    /**
-     * Возвращает кеш ключ провайдера
-     *
-     * @param string $providerAlias псевдоним провайдера
-     *
-     * @return string
-     */
-    public function getProviderCacheKey($providerAlias)
-    {
-        return static::CACHE_PREFIX . $providerAlias;
-    }
-
-    /**
-     * Возвращает ключ для хранения в кеше времени протухания курсов от провайдера
-     *
-     * @param string $providerAlias псевдоним провайдера
-     *
-     * @return string
-     */
-    public function getProviderCacheInvalidationTimeKey($providerAlias)
-    {
-        return self::CACHE_PREFIX . $providerAlias . self::CACHE_INVALIDATION_POSTFIX;
-    }
-
-    /**
-     * Возвращает время протухания курсов от провайдера
-     *
-     * @param string $providerAlias псевдоним провайдера
-     *
-     * @return int|false
-     */
-    public function getProviderCacheInvalidationTime($providerAlias)
-    {
-        if(null === $this->cache)
-        {
-            return false;
-        }
-
-        return $this->cache->fetch($this->getProviderCacheInvalidationTimeKey($providerAlias));
-    }
-
-    /**
-     * Установить время протухания курсов от провайдера
-     *
-     * @param int    $timestamp     время протухания курсов провайдеров
-     * @param string $providerAlias псевдоним провайдера
-     *
-     * @return bool
-     */
-    public function setProviderCacheInvalidationTime($timestamp, $providerAlias)
-    {
-        if(null === $this->cache)
-        {
-            return false;
-        }
-
-        return $this->cache->save($this->getProviderCacheInvalidationTimeKey($providerAlias), $timestamp, 0);
-    }
 }

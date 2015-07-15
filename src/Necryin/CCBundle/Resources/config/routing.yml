@@ -1,8 +1,19 @@
-necryin_api_converter:
-    resource: @NecryinCCBundle/Controller/ApiController.php
-    type:     annotation
-    defaults: {_format: json}
+home:
+    path:      /
+    methods: [GET]
+    defaults:  { _controller: NecryinCCBundle:Main:index }
 
-necryin_controller:
-    resource: @NecryinCCBundle/Controller/DefaultController.php
-    type:     annotation
+api_convert:
+    path:      /convert/currency.{_format}
+    methods: [GET]
+    defaults:  { _format: json, _controller: NecryinCCBundle:Api:convert }
+
+api_get_rates:
+    path:      /{provider}/rates.{_format}
+    methods: [GET]
+    defaults:  { _format: json, _controller: NecryinCCBundle:Api:getRates, providerAlias: cb }
+
+api_get_providers_aliases:
+    path:      /providers.{_format}
+    methods: [GET]
+    defaults:  { _format: json, _controller: NecryinCCBundle:Api:getProvidersAliases }

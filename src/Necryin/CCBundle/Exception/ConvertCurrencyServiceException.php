@@ -1,15 +1,13 @@
 <?php
 /**
- * User: human
- * Date: 17.02.15
+ * @author Kirilenko Georgii
  */
-
 namespace Necryin\CCBundle\Exception;
 
 /**
  * Исключение конвертера валют
  */
-class ConvertCurrencyServiceException extends \Exception
+class ConvertCurrencyServiceException extends NecryinCurrencyConverter
 {
 
 }

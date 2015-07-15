@@ -1,11 +1,9 @@
 <?php
 /**
- * User: human
- * Date: 13.02.15
+ * @author Kirilenko Georgii
  */
 namespace Necryin\CCBundle\Provider;
 
-use Guzzle\Service\ClientInterface;
 use Guzzle\Http\Exception\RequestException;
 use Necryin\CCBundle\Exception\ExchangeProviderException;
 use Guzzle\Common\Exception\RuntimeException;
@@ -13,59 +11,24 @@ use Guzzle\Common\Exception\RuntimeException;
 /**
  *  Предоставляет информацию о курсе валют по данным центробанка РФ
  */
-class CbExchangeProvider implements ExchangeProviderInterface
+class CbExchangeProvider extends AbstractExchangeProvider
 {
+    /**
+     * @const SOURCE Url api провайдера
+     */
+    const SOURCE = "http://www.cbr.ru/scripts/XML_daily.asp";
 
     /**
-     * Guzzle клиент
-     *
-     * @var ClientInterface
+     * @const BASE Валюта через которую идет конвертация
      */
-    private $client;
-
-    /**
-     * Валюта через которую идет конвертация
-     *
-     * @var string
-     */
-    private $base = 'RUB';
-
-    /**
-     * Url api провайдера
-     *
-     * @var string
-     */
-    private $source = "http://www.cbr.ru/scripts/XML_daily.asp";
-
-    /**
-     * Период обновления курсов в секундах
-     *
-     * @var int
-     */
-    const TTL = 3600;
-
-    /**
-     * @param ClientInterface $client Guzzle клиент
-     */
-    public function __construct(ClientInterface $client)
-    {
-        $this->client = $client;
-    }
-
-    /** {@inheritdoc} */
-    public function getTtl()
-    {
-        return self::TTL;
-    }
+    const BASE = 'RUB';
 
     /** {@inheritdoc} */
     public function getRates()
     {
-        $url = $this->source;
-
         try
         {
-            $response = $this->client->get($url)->send();
+            $response = $this->client->get(self::SOURCE)->send();
             $parsedResponse = $response->xml();
         }
         catch(RequestException $reqe)
@@ -88,7 +51,7 @@ class CbExchangeProvider implements ExchangeProviderInterface
         }
 
         $result = [];
-        $result['base'] = $this->base;
+        $result['base'] = self::BASE;
 
         /** Конвертим дату в timestamp */
         $date = (string) $parsedResponse->attributes()->Date;

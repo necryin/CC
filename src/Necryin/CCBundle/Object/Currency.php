@@ -1,9 +1,7 @@
 <?php
 /**
- * User: human
- * Date: 23.02.15
+ * @author Kirilenko Georgii
  */
-
 namespace Necryin\CCBundle\Object;
 
 use Necryin\CCBundle\Exception\InvalidArgumentException;

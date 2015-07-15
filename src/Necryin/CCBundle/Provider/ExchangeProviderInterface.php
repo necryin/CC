@@ -1,7 +1,6 @@
 <?php
 /**
- * User: human
- * Date: 13.02.15
+ * @author Kirilenko Georgii
  */
 namespace Necryin\CCBundle\Provider;
 
@@ -27,12 +26,4 @@ interface ExchangeProviderInterface
      * ]
      */
     public function getRates();
-
-    /**
-     * Период обновления курсов на провайдере в секундах
-     *
-     * @return int
-     */
-    public function getTtl();
-
 }

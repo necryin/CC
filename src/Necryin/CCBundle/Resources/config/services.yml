@@ -3,32 +3,31 @@ parameters:
     exchange_provider.openexchange: openexchange
 
 services:
-    kernel.listener.necryin_kernel_listener:
-        class: Necryin\CCBundle\EventListener\KernelListener
-        tags:
-            - { name: kernel.event_listener, event: kernel.exception, method: onKernelException, priority: 255 }
 
-    necryin_cc.currency_converter:
-        class: Necryin\CCBundle\Request\ParamConverter\CurrencyConverter
-        tags:
-            - { name: request.param_converter, priority: 1, converter: currency_converter }
-
-    necryin.exchange_provider_manager:
-        class: Necryin\CCBundle\Manager\ExchangeProviderManager
-        arguments: [@service_container]
+    necryin_cc.abstract_exchange_provider:
+        abstract: true
+        class: Necryin\CCBundle\Provider\AbstractExchangeProvider
+        calls:
+            - [setClient, [@guzzle.client]]
 
     necryin_cc.cb_exchange_provider:
         class: Necryin\CCBundle\Provider\CbExchangeProvider
-        arguments: [@guzzle.client]
+        parent: necryin_cc.abstract_exchange_provider
         tags:
             - { name: necryin.exchange_provider, alias: '%exchange_provider.cb%' }
 
     necryin.openexchange_exchange_provider:
         class: Necryin\CCBundle\Provider\OpenexchangeExchangeProvider
-        arguments: [@guzzle.client, '%openexchange.app_id%']
+        parent: necryin_cc.abstract_exchange_provider
+        calls:
+            - [setAppId, ['%openexchange.app_id%']]
         tags:
             - { name: necryin.exchange_provider, alias: '%exchange_provider.openexchange%' }
 
+    necryin.exchange_provider_manager:
+        class: Necryin\CCBundle\Manager\ExchangeProviderManager
+        arguments: [@service_container]
+
     necryin.currency_converter_service:
         class: Necryin\CCBundle\Service\CurrencyConverterService
-        arguments: [@necryin.exchange_provider_manager, @?cache]
+        arguments: [@necryin.exchange_provider_manager, @cache]

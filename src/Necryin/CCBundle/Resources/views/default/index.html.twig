@@ -23,11 +23,9 @@
         Результат: <span ng-model="result">{{ result }}</span>
     </div>
     {% endverbatim %}
-
 {% endblock %}
 
  {% block javascripts %}
-     {{ parent() }}
      {% javascripts '@NecryinCCBundle/Resources/public/js/lib/*' %}
      <script type="text/javascript" src="{{ asset_url }}"></script>
      {% endjavascripts %}
