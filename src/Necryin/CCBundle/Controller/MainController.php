@@ -17,7 +17,7 @@ class MainController extends Controller
      */
     public function indexAction()
     {
-        return $this->render('NecryinCCBundle:default:index.html.twig');
+        return $this->render('NecryinCCBundle::base.html.twig');
     }
 
 }

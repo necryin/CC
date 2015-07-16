@@ -57,11 +57,11 @@ class CbExchangeProvider extends AbstractExchangeProvider
         $date = (string) $parsedResponse->attributes()->Date;
         try
         {
-            $date = new \DateTime($date);
+            $date = new \DateTime($date, new \DateTimeZone('UTC'));
         }
         catch(\Exception $e)
         {
-            $date = new \DateTime(date('d.m.Y'));
+            $date = new \DateTime(date('d.m.Y'), new \DateTimeZone('UTC'));
         }
 
         $result['timestamp'] = (int) $date->format('U');

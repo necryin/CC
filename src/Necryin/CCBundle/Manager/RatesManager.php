@@ -7,7 +7,7 @@
 namespace Necryin\CCBundle\Manager;
 
 use Doctrine\Common\Cache\Cache;
-use Necryin\CCBundle\Exception\ConvertCurrencyServiceException;
+use Necryin\CCBundle\Exception\ConvertCurrencyException;
 
 /**
 * @author Kirilenko Georgii
@@ -47,7 +47,7 @@ class RatesManager
      *
      * @return array курсы валют
      *
-     * @throws ConvertCurrencyServiceException
+     * @throws ConvertCurrencyException
      */
     public function getRates($providerAlias)
     {
@@ -68,7 +68,7 @@ class RatesManager
             {
                 if(!$rates)
                 {
-                    throw new ConvertCurrencyServiceException('Cannot provide rates');
+                    throw new ConvertCurrencyException('Cannot provide rates');
                 }
             }
 

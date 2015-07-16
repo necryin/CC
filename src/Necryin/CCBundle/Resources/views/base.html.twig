@@ -2,12 +2,36 @@
 <html>
 <head>
     <meta charset="UTF-8"/>
-    <title>{% block title %}Welcome to CC Currency Converter!{% endblock %}</title>
-    {% block stylesheets %}{% endblock %}
+    <title>Welcome to CC Currency Converter!</title>
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico?v2') }}"/>
 </head>
 <body>
-{% block body %}{% endblock %}
-{% block javascripts %}{% endblock %}
+
+<div ng-app="cc" ng-controller="MainController as main" class="container-fluid">
+    <div>Провайдеры курсов
+        <select ng-change="updateRates()" ng-model="currentProvider"
+                ng-options="provider for provider in providers">
+        </select>
+    </div>
+    <br/>
+    Из
+    <select ng-model="from" id="from">
+        <option ng-repeat="(code, rate) in rates[currentProvider]" ng-bind="code"></option>
+    </select>
+    в
+    <select ng-model="to" id="to">
+        <option ng-repeat="(code, rate) in rates[currentProvider]" ng-bind="code"></option>
+    </select>
+    <input ng-model="amount" type="text" value="1"/>
+    <input type="button" value="calc" ng-click="calculate()"/>
+    <span>Результат: <span ng-model="result" ng-bind="result"></span></span>
+</div>
+
+{% javascripts '@NecryinCCBundle/Resources/public/js/lib/*' %}
+    <script type="text/javascript" src="{{ asset_url }}"></script>
+{% endjavascripts %}
+
+<script src="{{ asset('bundles/necryincc/js/app.js') }}"></script>
+
 </body>
 </html>
