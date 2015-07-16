@@ -1,16 +1,14 @@
 {% extends 'NecryinCCBundle::base.html.twig' %}
 
 {% block body %}
-
-    {% verbatim %}
     <div ng-app="cc" ng-controller="MainController as main" class="container-fluid">
         Из
         <select ng-model="from" id="from">
-            <option ng-repeat="(code, rate) in rates[currentProvider]">{{ code }}</option>
+            <option ng-repeat="(code, rate) in rates[currentProvider]" ng-bind="code"></option>
         </select>
         в
         <select ng-model="to" id="to">
-            <option ng-repeat="(code, rate) in rates[currentProvider]">{{ code }}</option>
+            <option ng-repeat="(code, rate) in rates[currentProvider]" ng-bind="code"></option>
         </select>
 
         <div>Провайдеры курсов
@@ -19,17 +17,15 @@
             </select>
         </div>
         <input ng-model="amount" type="text" value="1"/>
-        <input type="button" value="calc" ng-click="calculate()"/><br/>
-        Результат: <span ng-model="result">{{ result }}</span>
+        <input type="button" value="calc" ng-click="calculate()"/>
+        <br/>Результат: <span ng-model="result" ng-bind="result"></span>
     </div>
-    {% endverbatim %}
 {% endblock %}
 
  {% block javascripts %}
      {% javascripts '@NecryinCCBundle/Resources/public/js/lib/*' %}
      <script type="text/javascript" src="{{ asset_url }}"></script>
      {% endjavascripts %}
-     {% javascripts '@NecryinCCBundle/Resources/public/js/app.js' %}
-     <script type="text/javascript" src="{{ asset_url }}"></script>
-     {% endjavascripts %}
+
+     <script src="{{ asset('bundles/necryincc/js/app.js') }}"></script>
  {% endblock %}

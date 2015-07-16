@@ -28,6 +28,10 @@ services:
         class: Necryin\CCBundle\Manager\ExchangeProviderManager
         arguments: [@service_container]
 
-    necryin.currency_converter_service:
-        class: Necryin\CCBundle\Service\CurrencyConverterService
+    necryin.rates_manager:
+        class: Necryin\CCBundle\Manager\RatesManager
         arguments: [@necryin.exchange_provider_manager, @cache]
+
+    necryin.currency_converter_service:
+        class: Necryin\CCBundle\Service\CurrencyConverter
+        arguments: [@necryin.rates_manager]

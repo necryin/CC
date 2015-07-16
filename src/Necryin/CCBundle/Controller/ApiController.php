@@ -4,7 +4,6 @@
  */
 namespace Necryin\CCBundle\Controller;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,7 +16,7 @@ class ApiController extends Controller
 
     /**
      * Конвертирует валюты по курсу указанного провайдера (по умолчанию ЦБ)
-     * Пример запроса к апи convert/currency?from=DKK&to=EUR&amount=100&provider=openexchange
+     * Пример запроса к апи: convert/currency?from=DKK&to=EUR&amount=100&provider=openexchange
      *
      * @Rest\View
      *
@@ -54,7 +53,7 @@ class ApiController extends Controller
      */
     public function getRatesAction($provider)
     {
-        return  $this->get('necryin.currency_converter_service')->getRates($provider);
+        return  $this->get('necryin.rates_manager')->getRates($provider);
     }
 
     /**
